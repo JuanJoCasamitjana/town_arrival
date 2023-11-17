@@ -1,10 +1,14 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  <h2>Actualizar perfil</h2>
-  <form method="post">
-    {% csrf_token %}
-    {{ profile_form.as_p }}
-    <button type="submit">Guardar cambios</button>
-  </form>
+<div class="d-flex justify-content-center">
+  <div class="align-items-center">
+    <h2 class="text-center">Actualizar perfil</h2>
+    <form class="d-flex flex-column align-items-center align-middle" method="post">
+      {% csrf_token %}
+      {{ profile_form.as_p }}
+      <button class="btn-lg btn-outline-dark" type="submit">Login</button>
+    </form>
+  </div>
+</div>
 {% endblock %}
