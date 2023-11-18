@@ -10,7 +10,6 @@ class Profile(models.Model):
     email = models.EmailField()
     bio = models.TextField(blank=True)
     rol = models.CharField(max_length=2,choices=[
-        ("Ad", "Admin"),
         ("Ar", "Arrendador"),
         ("Cl", "Cliente")
     ])

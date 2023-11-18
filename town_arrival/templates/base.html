@@ -9,12 +9,15 @@
 <body>
     <header>
         <nav class="navbar navbar-expand-sm bg-dark navbar-dark">
-            <h1 class="navbar-brand">{% block header %}Town Arrival{% endblock %}</h1>
+            <a class="navbar-brand" href="{% url 'catalogo_casas' %}">Town Arrival</a>
             <ul class="navbar-nav">
                 
                 {% if user.is_authenticated %}
                     <li class="nav-item"><a class="nav-link" href="{% url 'update_profile' %}">Actualizar Perfil</a></li>
                     <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Cerrar Sesión</a></li>
+                    {% if user.profile.rol == 'Ar' %}
+                        <li class="nav-item"><a class="nav-link" href="{% url 'crear_casa' %}">Añadir Casa</a></li>
+                    {% endif %}
                 {% else %}
                     <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Iniciar Sesión</a></li>
                     <li class="nav-item"><a class="nav-link" href="{% url 'register' %}">Registro</a></li>

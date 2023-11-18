@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login
 from .forms import UserRegistrationForm, UserProfileForm, UserLoginForm
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import logout, authenticate
 
 def register(request):
     if request.method == 'POST':
@@ -40,7 +41,7 @@ def update_profile(request):
 
 def user_login(request):
     if request.method == 'POST':
-        login_form = UserLoginForm(request, request.POST)
+        login_form = UserLoginForm(request.POST)
 
         if login_form.is_valid():
             username = login_form.cleaned_data['username']
@@ -49,9 +50,13 @@ def user_login(request):
 
             if user is not None:
                 login(request, user)
-                return redirect('home')  # Cambia 'home' con el nombre de tu página de inicio
+                return redirect('catalogo_casas')  # Cambia 'home' con el nombre de tu página de inicio
 
     else:
         login_form = UserLoginForm()
 
     return render(request, 'login.html', {'login_form': login_form})
+
+def user_logout(request):
+    logout(request)
+    return redirect("catalogo_casas")

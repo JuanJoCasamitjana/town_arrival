@@ -1,0 +1,20 @@
+<!-- templates/detalle_casa.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="container mt-4">
+    <article class="card">
+      <img src="{{ casa.imagen }}" class="card-img-top" style="object-fit: cover; max-width: 50%; max-height: 50%;" alt="{{ casa.titulo }}">
+      <div class="card-body">
+        <h2 class="card-title">{{ casa.titulo }}</h2>
+        <p class="card-text">{{ casa.descripcion }}</p>
+        <p class="card-text"><strong>Localidad:</strong> {{ casa.localidad }}</p>
+        <p class="card-text"><strong>Dirección:</strong> {{ casa.direccion }}</p>
+
+        <!-- Otros detalles o enlaces aquí si es necesario -->
+
+        <a href="#" class="btn btn-primary">Contactar al Arrendador</a>
+      </div>
+    </article>
+  </div>
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Crear Casa</h2>
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    
+    <h3>Subir Imagen</h3>
+    {{ image_form.as_p }}
+    
+    <button type="submit">Guardar</button>
+  </form>
+{% endblock %}
