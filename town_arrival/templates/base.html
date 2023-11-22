@@ -15,6 +15,14 @@
                 {% if user.is_authenticated %}
                     <li class="nav-item"><a class="nav-link" href="{% url 'update_profile' %}">Actualizar Perfil</a></li>
                     <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Cerrar Sesión</a></li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'carrito' %}">
+                            Carrito
+                            <span class="badge badge-pill badge-primary">
+                                {{ total_carrito }}
+                            </span>
+                        </a>
+                    </li>
                     {% if user.profile.rol == 'Ar' %}
                         <li class="nav-item"><a class="nav-link" href="{% url 'crear_casa' %}">Añadir Casa</a></li>
                     {% endif %}
