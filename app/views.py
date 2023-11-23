@@ -15,7 +15,9 @@ def catalogo_casas(request):
 
 def info_casa(request, casa_id):
     casa = get_object_or_404(Casa, pk=casa_id)
-    return render(request, 'info_casa.html', {'casa': casa})
+    user = request.user.profile
+    is_owner = user == casa.arrendador
+    return render(request, 'info_casa.html', {'casa': casa,'is_owner':is_owner })
 
 @login_required
 def crear_casa(request):
@@ -58,3 +60,12 @@ def upload_image_to_external_service(image_file):
         return result['data']['url']
 
     return None
+
+def delete_casa(request, casa_id):
+    casa = get_object_or_404(Casa, pk=casa_id)
+    user = request.user.profile
+    is_owner = user == casa.arrendador
+    if is_owner:
+        Casa.delete(casa)
+    return redirect('catalogo_casas')
+

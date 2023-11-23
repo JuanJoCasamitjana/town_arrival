@@ -7,6 +7,7 @@ urlpatterns = [
     path("",views.catalogo_casas,name="index"),
     path('catalogo-casas/', views.catalogo_casas, name='catalogo_casas'),
     path('casa/<int:casa_id>/', views.info_casa, name='detalle_casa'),
+    path('delete-casa/<int:casa_id>/', views.delete_casa, name='delete_casa'),
     path('nueva-casa', views.crear_casa, name='crear_casa'),
     
 ]
