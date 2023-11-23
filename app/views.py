@@ -15,11 +15,6 @@ def info_casa(request, casa_id):
     casa = get_object_or_404(Casa, pk=casa_id)
     return render(request, 'info_casa.html', {'casa': casa})
 
-import requests
-from django.shortcuts import render, redirect
-from .forms import CasaForm, ImageUploadForm
-from .models import Casa
-
 def crear_casa(request):
     if request.method == 'POST':
         form = CasaForm(request.POST, request.FILES)

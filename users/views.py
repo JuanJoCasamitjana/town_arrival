@@ -16,7 +16,7 @@ def register(request):
             profile.save()
             
             login(request, user)  # Loguear al usuario después de registrarse
-            return redirect('home')  # Redirigir a la página de inicio
+            return redirect('catalogo_casas')  # Redirigir a la página de inicio
 
     else:
         user_form = UserRegistrationForm()
