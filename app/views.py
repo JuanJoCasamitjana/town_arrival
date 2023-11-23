@@ -2,6 +2,7 @@ from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404
 from .models import Casa
 import requests
+from .forms import CasaForm, ImageUploadForm
 
 # Create your views here.
 def index(request):
