@@ -1,10 +1,22 @@
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Casa
+from django.db.models import Q
 import requests
 from .forms import CasaForm, ImageUploadForm
 from django.contrib.auth.decorators import login_required
 
+def busqueda(request):
+    query = request.GET.get('query', '')
+    casas = Casa.objects.all()
+
+    if query:
+        casas = casas.filter(Q(titulo__icontains=query) | Q(descripcion__icontains=query) | Q(localidad__icontains=query))
+
+    return render(request, 'buscador.html', {
+        'casas': casas,
+        'query':query,
+        })
 # Create your views here.
 def index(request):
     return HttpResponse("Hello, world. You're at the town_arrival index.")
