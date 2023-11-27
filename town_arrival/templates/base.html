@@ -10,6 +10,7 @@
     <header>
         <nav class="navbar navbar-expand-sm bg-dark navbar-dark">
             <a class="navbar-brand" href="{% url 'catalogo_casas' %}">Town Arrival</a>
+            <li class="nav-item"><a class="nav-link" href="{% url 'busqueda' %}">Busqueda</a></li>
             <ul class="navbar-nav">
                 
                 {% if user.is_authenticated %}

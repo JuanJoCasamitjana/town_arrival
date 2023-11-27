@@ -6,6 +6,7 @@ from shoppingCart import views as v
 from pagos import views as vi
 
 urlpatterns = [
+    path('', views.busqueda, name='busqueda'),
     path("",views.catalogo_casas,name="index"),
     path('catalogo-casas/', views.catalogo_casas, name='catalogo_casas'),
     path('casa/<int:casa_id>/', views.info_casa, name='detalle_casa'),
