@@ -1,7 +1,9 @@
 from django.http import HttpResponse
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from .models import Casa
 import requests
+from .forms import CasaForm, ImageUploadForm
+from django.contrib.auth.decorators import login_required
 
 # Create your views here.
 def index(request):
@@ -15,11 +17,7 @@ def info_casa(request, casa_id):
     casa = get_object_or_404(Casa, pk=casa_id)
     return render(request, 'info_casa.html', {'casa': casa})
 
-import requests
-from django.shortcuts import render, redirect
-from .forms import CasaForm, ImageUploadForm
-from .models import Casa
-
+@login_required
 def crear_casa(request):
     if request.method == 'POST':
         form = CasaForm(request.POST, request.FILES)
