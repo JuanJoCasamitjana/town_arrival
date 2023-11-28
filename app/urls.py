@@ -3,7 +3,8 @@ from django.urls import include, path
 
 from app import views
 from shoppingCart import views as v
-from pagos import views as vi
+from pagos import views as pago
+from vistasAdministrador import views as ad
 
 urlpatterns = [
     path('', views.busqueda, name='busqueda'),
@@ -12,6 +13,8 @@ urlpatterns = [
     path('casa/<int:casa_id>/', views.info_casa, name='detalle_casa'),
     path('nueva-casa', views.crear_casa, name='crear_casa'),
     path('carrito/', v.carrito, name='carrito'),
-    path('pagos/', vi.pagos, name='pagos')
+    path('pagos/', pago.pagos, name='pagos'),
+    path('ventasAdmin/', ad.vistaVentas, name='ventasAdmin'),
+    path('gestionAdmin/', ad.vistaClientes, name='gestionAdmin')
     
 ]
