@@ -1,11 +1,5 @@
 {% extends 'base.html' %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Carrito de Compras</title>
-</head>
+{% block content %}
 <body>
     <h1>Carrito de Compras</h1>
     
@@ -18,13 +12,9 @@
     
     <!-- Mostrar el total del carrito -->
     <p>Total: ${{ total_carrito }}</p>
-    
-    <!-- Agrega botones u opciones para el carrito (como proceder al pago, seguir comprando, etc.) -->
-    <link rel="stylesheet" href="?page={{ pagos }}" />
+  
+     <link rel="stylesheet" href="?page={{ pagos }}" />
     <button class="btn btn-success">Pago Contrarembolso</button>
     <a href="#" class="btn btn-success">Pago Contrarembolso</a>
 
-    <!--Hacer pasarela de pago -->
-    
-</body>
-</html>
+{% endblock %}

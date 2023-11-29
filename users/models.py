@@ -3,6 +3,8 @@ from django.contrib.auth.models import User
 from shoppingCart.models import Carrito
 from django.apps import apps
 
+from shoppingCart.models import Carrito
+
 # Create your models here.
 class Profile(models.Model):
     #Modelo de usuario basico de Django
