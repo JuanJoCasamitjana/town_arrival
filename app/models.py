@@ -3,7 +3,7 @@ from users.models import Profile
 
 # Create your models here.
 class Casa(models.Model):
-    arrendador = models.OneToOneField(Profile, on_delete=models.CASCADE)
+    arrendador = models.ForeignKey(Profile, on_delete=models.CASCADE)
     titulo = models.TextField(blank=False, max_length=150)
     descripcion = models.TextField(blank=False, max_length=500)
     imagen = models.URLField()
