@@ -38,3 +38,14 @@ def agregar_carrito(request, casa_id):
             messages.error(request, "Debes iniciar sesión para agregar al carrito.")
 
     return redirect('info_casa', casa_id=casa_id)
+
+def eliminar_del_carrito(request, producto_id):
+    if request.user.is_authenticated:
+        carrito_usuario = Carrito.objects.get(user=request.user)
+        producto = get_object_or_404(Casa, pk=producto_id)
+        carrito_usuario.productos.remove(producto)
+        messages.success(request, f"{producto.titulo} ha sido eliminado del carrito.")
+    else:
+        messages.error(request, "Debes iniciar sesión para eliminar productos del carrito.")
+
+    return redirect('carrito')

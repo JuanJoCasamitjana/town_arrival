@@ -7,6 +7,7 @@
     <ul>
         {% for producto in productos_en_carrito %}
             <li>{{ producto.titulo }} - Precio: ${{ producto.precio }}</li>
+            <a href="{% url 'eliminar_del_carrito' producto.id %}">Eliminar</a>
         {% endfor %}
     </ul>
     
