@@ -1,5 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import User
+from shoppingCart.models import Carrito
+from django.apps import apps
+
+from shoppingCart.models import Carrito
 
 # Create your models here.
 class Profile(models.Model):
@@ -12,6 +16,9 @@ class Profile(models.Model):
         ("Ar", "Arrendador"),
         ("Cl", "Cliente")
     ])
+    carrito = models.OneToOneField(Carrito, on_delete=models.CASCADE, blank=True, null=True)
+    alquiladas = models.ManyToManyField('app.Casa', blank=True)
     def __str__(self):
         return self.user.username
+    
 
