@@ -43,7 +43,8 @@ INSTALLED_APPS = [
     'town_arrival',
     'shoppingCart',
     'pagos',
-    'vistasAdministrador
+    'vistasAdministrador',
+    
 ]
 
 MIDDLEWARE = [
