@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+from shoppingCart.models import Carrito
+
 # Create your models here.
 class Profile(models.Model):
     #Modelo de usuario basico de Django
@@ -13,6 +15,8 @@ class Profile(models.Model):
         ("Ar", "Arrendador"),
         ("Cl", "Cliente")
     ])
+    carrito = models.OneToOneField(Carrito, on_delete=models.CASCADE, blank=True, null=True)
+
     def __str__(self):
         return self.user.username
 
