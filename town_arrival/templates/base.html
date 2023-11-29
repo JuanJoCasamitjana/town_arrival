@@ -27,6 +27,10 @@
                     {% if user.profile.rol == 'Ar' %}
                         <li class="nav-item"><a class="nav-link" href="{% url 'crear_casa' %}">Añadir Casa</a></li>
                     {% endif %}
+                    {% if user.is_superuser %}
+                        <li class="nav-item"><a class="nav-link" href="{% url 'ventasAdmin' %}">Gestion ventas</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'gestionAdmin' %}">Gestion clientes</a></li>
+                    {% endif %}
                 {% else %}
                     <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Iniciar Sesión</a></li>
                     <li class="nav-item"><a class="nav-link" href="{% url 'register' %}">Registro</a></li>

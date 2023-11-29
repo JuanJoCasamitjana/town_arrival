@@ -25,7 +25,6 @@ def carrito(request):
         'productos_en_carrito': productos_en_carrito,
         'total_carrito': total_carrito
     })
-
 def agregar_carrito(request, casa_id):
     if request.method == 'POST':
         if request.user.is_authenticated:
