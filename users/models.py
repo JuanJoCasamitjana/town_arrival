@@ -1,11 +1,17 @@
 from django.db import models
 from django.contrib.auth.models import User
-from shoppingCart.models import Carrito
+
 from django.apps import apps
 
-from shoppingCart.models import Carrito
-
 # Create your models here.
+class Alquiler(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    alquilo = models.OneToOneField('app.Casa',on_delete=models.CASCADE, blank=True)
+    FechaInicio = models.DateTimeField()
+    FechaFinal = models.DateTimeField()
+    
+    def __str__(self):
+        return self.user.username
 class Profile(models.Model):
     #Modelo de usuario basico de Django
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -16,9 +22,12 @@ class Profile(models.Model):
         ("Ar", "Arrendador"),
         ("Cl", "Cliente")
     ])
-    carrito = models.OneToOneField(Carrito, on_delete=models.CASCADE, blank=True, null=True)
-    alquiladas = models.ManyToManyField('app.Casa', blank=True)
+    carrito = models.OneToOneField('shoppingCart.Carrito', on_delete=models.CASCADE, blank=True, null=True)
+    alquiladas = models.ManyToManyField(Alquiler, blank=True)
     def __str__(self):
         return self.user.username
+    
+
+
     
 
