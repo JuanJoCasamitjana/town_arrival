@@ -3,22 +3,28 @@ from shoppingCart.models import Carrito
 from users.models import Profile
 
 def pagos(request):
+    if request.method == 'POST':
+        if request.user.is_authenticated:
+            carrito_usuario = Carrito.objects.get(user=request.user)
+            cliente = Profile.objects.get(user=request.user)
+            productos_en_carrito = carrito_usuario.productos.all()
+            total_vendido = carrito_usuario.total
 
-    # Obtener el carrito del usuario actual si está autenticado
-    if request.user.is_authenticated:
-        carrito_usuario = Carrito.objects.get(user=request.user)
-        cliente = Profile.objects.get(user=request.user)
-        productos_en_carrito = carrito_usuario.productos.all()
-        total_vendido= carrito_usuario.total
-        cliente.update(alquiladas=productos_en_carrito)
-        carrito_usuario.update(productos = [])
-        carrito_usuario.update(total = 0)
-    else:
-        productos_en_carrito = []
-        total_vendido = 0
+            # Actualizar el campo 'alquiladas' del perfil del usuario
+            for casa in productos_en_carrito:
+                cliente.alquiladas.add(casa)
+            cliente.save()
+            todos = cliente.alquiladas.all()
+            # Restablecer el carrito del usuario
+            carrito_usuario.productos.clear()
+            carrito_usuario.total = 0
+            carrito_usuario.save()
+        else:
+            productos_en_carrito = []
+            total_vendido = 0
 
 
     return render(request, 'pagos.html', {
-        'productos_en_carrito': productos_en_carrito,
+        'todos': todos,
         'total_vendido': total_vendido
     })
