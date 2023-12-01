@@ -25,7 +25,6 @@ def carrito(request):
         'productos_en_carrito': productos_en_carrito,
         'total_carrito': total_carrito
     })
-
 def agregar_carrito(request, casa_id):
     if request.method == 'POST':
         if request.user.is_authenticated:
@@ -38,6 +37,7 @@ def agregar_carrito(request, casa_id):
             messages.error(request, "Debes iniciar sesión para agregar al carrito.")
 
     return redirect('info_casa', casa_id=casa_id)
+<<<<<<< HEAD
 
 def eliminar_del_carrito(request, producto_id):
     if request.user.is_authenticated:
@@ -49,3 +49,5 @@ def eliminar_del_carrito(request, producto_id):
         messages.error(request, "Debes iniciar sesión para eliminar productos del carrito.")
 
     return redirect('carrito')
+=======
+>>>>>>> develop

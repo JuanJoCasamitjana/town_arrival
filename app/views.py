@@ -6,6 +6,10 @@ import requests
 from .forms import CasaForm, ImageUploadForm
 from django.contrib.auth.decorators import login_required
 
+
+
+API_KEY = '78a7e53f033d954800e7f90ff1fcfca2'
+
 def busqueda(request):
     query = request.GET.get('query', '')
     casas = Casa.objects.all()
@@ -54,19 +58,26 @@ def crear_casa(request):
 
     return render(request, 'crear_casa.html', {'form': form, 'image_form': image_form})
 
+import requests
+
 def upload_image_to_external_service(image_file):
-    # Lógica para subir la imagen al servicio externo y obtener la URL
-    # Este es un ejemplo simple utilizando el servicio 'imgbb', pero puedes ajustarlo según tus necesidades
-    upload_url = 'https://api.imgbb.com/1/upload'
-    api_key = '78a7e53f033d954800e7f90ff1fcfca2'  # Reemplaza esto con tu clave de API real
+    try:
+        upload_url = 'https://api.imgbb.com/1/upload'
+        api_key = API_KEY
 
-    files = {'image': image_file}
-    params = {'key': api_key}
+        files = {'image': image_file}
+        params = {'key': api_key}
 
-    response = requests.post(upload_url, params=params, files=files)
-    result = response.json()
+        response = requests.post(upload_url, params=params, files=files)
 
-    if 'data' in result and 'url' in result['data']:
-        return result['data']['url']
+        # Verifica si la solicitud fue exitosa
+        response.raise_for_status()
+
+        result = response.json()
+
+        if 'data' in result and 'url' in result['data']:
+            return result['data']['url']
+    except Exception as e:
+        print(f"Error al cargar la imagen: {e}")
 
     return None

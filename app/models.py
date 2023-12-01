@@ -1,5 +1,5 @@
 from django.db import models
-from users.models import Profile
+from users.models import Profile, Alquiler
 
 # Create your models here.
 class Casa(models.Model):
@@ -9,6 +9,8 @@ class Casa(models.Model):
     imagen = models.URLField()
     localidad = models.TextField(blank=False, max_length=50)
     direccion = models.TextField(blank=False, max_length=100)
+    precioPorDia = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    ocupadas= models.ManyToManyField(Alquiler, blank=True)
 
     def __str__(self):
         return self.titulo

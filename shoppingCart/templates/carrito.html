@@ -13,7 +13,10 @@
     
     <!-- Mostrar el total del carrito -->
     <p>Total: ${{ total_carrito }}</p>
-    
-</body>
-</html>
+  
+    <form method="post" action="{% url 'pagos' %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary">Pago Contrarrembolso</button>
+      </form>
+
 {% endblock %}
