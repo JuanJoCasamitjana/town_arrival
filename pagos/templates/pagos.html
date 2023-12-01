@@ -4,13 +4,12 @@
 <body>
     <h1>Tu compra ha sido efectuada</h1>
     <ul>
-        {% for producto in todos %}
+        {% for alquiler in todos %}
             <h5>Casa:</h5>
-            <li>{{ producto.titulo }}</li>
+            <li>{{ alquiler.alquilo.titulo }}</li>
         {% endfor %}
     </ul>
     <li>{{ total_vendido }}
     <a class='btn btn-primary' href='/catalogo-casas'>Volver al catálogo</a>
-
 </body>
 {% endblock %}
