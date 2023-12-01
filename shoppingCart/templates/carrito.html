@@ -5,9 +5,9 @@
     
     <!-- Mostrar productos en el carrito -->
     <ul>
-        {% for producto in productos_en_carrito %}
-            <li>{{ producto.titulo }} - Precio: ${{ producto.precio }}</li>
-            <a href="{% url 'eliminar_del_carrito' producto.id %}">Eliminar</a>
+        {% for alquiler in productos_en_carrito %}
+            <li>{{ alquiler.alquilo.titulo }} - Precio: ${{ alquiler.alquilo.precioPorDia }}</li>
+            <a href="{% url 'eliminar_del_carrito' alquiler.id %}">Eliminar</a>
         {% endfor %}
     </ul>
     
@@ -17,6 +17,6 @@
     <form method="post" action="{% url 'pagos' %}">
         {% csrf_token %}
         <button type="submit" class="btn btn-primary">Pago Contrarrembolso</button>
-      </form>
-
+    </form>
+</body>
 {% endblock %}
