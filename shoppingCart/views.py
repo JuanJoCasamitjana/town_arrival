@@ -8,9 +8,9 @@ from django.db.models import Q
 
 def carrito(request):
     try:
-        # Obtener el carrito del usuario actual si está autenticado
         if request.user.is_authenticated:
-            carrito_usuario = Carrito.objects.get(user=request.user)
+            # Obtener el carrito del usuario o crear uno nuevo si no existe
+            carrito_usuario, created = Carrito.objects.get_or_create(user=request.user)
             productos_en_carrito = carrito_usuario.productos.all()
             total_carrito = carrito_usuario.total
         else:
@@ -54,9 +54,21 @@ def agregar_carrito(request, casa_id):
                 FechaInicio=fecha_inicio,
                 FechaFinal=fecha_final
             )
+
+            # Verificar si el alquiler ya está en el carrito antes de agregarlo
             carrito_usuario, created = Carrito.objects.get_or_create(user=usuario)
-            carrito_usuario.productos.add(alquiler)
-            messages.success(request, f"{casa.titulo} ha sido agregada al carrito.")
+            if alquiler not in carrito_usuario.productos.all():
+                carrito_usuario.productos.add(alquiler)
+
+                # Actualizar el total del carrito después de agregar el producto
+                carrito_usuario.total += casa.precioPorDia
+                carrito_usuario.save()
+                messages.success(request, f"{casa.titulo} ha sido agregada al carrito.")
+                print("Producto agregado correctamente al carrito")
+            else:
+                messages.info(request, f"{casa.titulo} ya está en el carrito.")
+                print("El producto ya está en el carrito")
+            print("Producto eliminado, redireccionando a la página de detalle de la casa")
             return redirect('detalle_casa', casa_id=casa_id)
         else:
             messages.error(request, "Debes iniciar sesión para agregar al carrito.")
@@ -70,6 +82,15 @@ def eliminar_del_carrito(request, producto_id):
         alquiler = get_object_or_404(Alquiler, pk=producto_id)
         
         carrito_usuario.productos.remove(alquiler)
+
+        print(f"Producto eliminado: {alquiler.alquilo.titulo}")  # Mensaje de depuración
+        print(f"Total antes de la resta: {carrito_usuario.total}")  # Mensaje de depuración
+
+        carrito_usuario.total -= alquiler.alquilo.precioPorDia  # Restar el precio del producto eliminado
+        carrito_usuario.save()
+
+        print(f"Total después de la resta: {carrito_usuario.total}")  # Mensaje de depuración
+
         messages.success(request, f"{alquiler.alquilo.titulo} ha sido eliminado del carrito.")
     else:
         messages.error(request, "Debes iniciar sesión para eliminar productos del carrito.")

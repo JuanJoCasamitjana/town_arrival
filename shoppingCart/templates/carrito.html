@@ -6,8 +6,10 @@
     <!-- Mostrar productos en el carrito -->
     <ul>
         {% for alquiler in productos_en_carrito %}
-            <li>{{ alquiler.alquilo.titulo }} - Precio: ${{ alquiler.alquilo.precioPorDia }}</li>
-            <a href="{% url 'eliminar_del_carrito' alquiler.id %}">Eliminar</a>
+            <li>
+                {{ alquiler.alquilo.titulo }} - Precio: ${{ alquiler.alquilo.precioPorDia }}
+                <a href="{% url 'eliminar_del_carrito' alquiler.id %}">Eliminar</a>
+            </li>
         {% endfor %}
     </ul>
     
@@ -19,4 +21,5 @@
         <button type="submit" class="btn btn-primary">Pago Contrarrembolso</button>
     </form>
 </body>
+
 {% endblock %}

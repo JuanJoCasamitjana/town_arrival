@@ -9,7 +9,7 @@ class Casa(models.Model):
     imagen = models.URLField()
     localidad = models.TextField(blank=False, max_length=50)
     direccion = models.TextField(blank=False, max_length=100)
-    precioPorDia = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    precioPorDia = models.DecimalField(max_digits=10, decimal_places=2, default=10)
     ocupadas= models.ManyToManyField(Alquiler, blank=True)
 
     def __str__(self):
