@@ -32,21 +32,24 @@ def agregar_carrito(request, casa_id):
         if request.user.is_authenticated:
             casa = get_object_or_404(Casa, pk=casa_id)
             usuario = request.user
-
-            # Verificar si el usuario ya tiene un alquiler activo para esta casa
-            alquiler_existente = Alquiler.objects.filter(
-                Q(user=usuario) & Q(alquilo=casa) & Q(FechaFinal__gte=datetime.now())
-            ).exists()
-
-            if alquiler_existente:
-                messages.error(request, f"Ya tienes un alquiler activo para esta casa.")
-                return redirect('info_casa', casa_id=casa_id)
             
             # Supongamos que deseas establecer la fecha de inicio como el momento actual
-            fecha_inicio = datetime.now()
+            fecha_inicio = datetime.today()
             
             # Supongamos que el alquiler dura 7 días a partir de la fecha de inicio
             fecha_final = fecha_inicio + timedelta(days=7)
+            
+            # Verificar si el usuario ya tiene un alquiler activo para esta casa
+            alquiler_existente = Alquiler.objects.filter(
+                Q(alquilo=casa) &(
+                Q(FechaInicio__lte=fecha_inicio, FechaFinal__gte=fecha_inicio) |
+                Q(FechaInicio__lte=fecha_final, FechaFinal__gte=fecha_final) |
+                Q(FechaInicio__gte=fecha_inicio, FechaFinal__lte=fecha_final))).exists()
+            
+            if alquiler_existente:
+                messages.error(request, f"Ya tienes un alquiler activo para esta casa.")
+                print("tontito borra la abse de datos")
+                return redirect('info_casa', casa_id=casa_id)
             
             alquiler, created = Alquiler.objects.get_or_create(
                 user=usuario,
@@ -88,6 +91,7 @@ def eliminar_del_carrito(request, producto_id):
 
         carrito_usuario.total -= alquiler.alquilo.precioPorDia  # Restar el precio del producto eliminado
         carrito_usuario.save()
+        alquiler.delete()
 
         print(f"Total después de la resta: {carrito_usuario.total}")  # Mensaje de depuración
 

@@ -4,10 +4,10 @@ from django.contrib.auth.models import User
 from django.apps import apps
 
 class Alquiler(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     alquilo = models.ForeignKey('app.Casa', on_delete=models.CASCADE)  # Referencia a la Casa alquilada
-    FechaInicio = models.DateTimeField()
-    FechaFinal = models.DateTimeField()
+    FechaInicio = models.DateField()
+    FechaFinal = models.DateField()
     
     def __str__(self):
         return f"{self.user.username} - {self.alquilo.titulo}"
