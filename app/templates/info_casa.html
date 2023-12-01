@@ -19,8 +19,7 @@
     </div>
 
     <a href="#" class="btn btn-primary">Contactar al Arrendador</a>
-        <!-- Si el usuario NO es el propietario -->
-        {% if not es_propietario %}
+
         <!-- Sección de Comentarios -->
         <h3>Comentarios</h3>
         <ul>
@@ -29,14 +28,14 @@
                 <!-- Muestra los comentarios existentes -->
             {% endfor %}
         </ul>
-
+        {% if not es_propietario %}
         <!-- Formulario para dejar un comentario -->
         <form method="post">
             {% csrf_token %}
             {{ comentario_form.as_p }}
             <button type="submit">Enviar Comentario</button>
         </form>
-    {% endif %}
+        {% endif %}
 </div>
 </article>
 </div>
