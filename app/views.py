@@ -1,8 +1,10 @@
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Casa, Comentario
+from .models import Casa, Comentario, Comentario_Reclamacion
 from django.db.models import Q
 import requests
+from .models import Reclamacion
+from .forms import ReclamacionForm
 from .forms import CasaForm, ImageUploadForm, ComentarioForm
 from django.contrib.auth.decorators import login_required
 
@@ -104,3 +106,55 @@ def upload_image_to_external_service(image_file):
         print(f"Error al cargar la imagen: {e}")
 
     return None
+
+def presentar_reclamacion(request, casa_id):
+    casa = Casa.objects.get(pk=casa_id)
+    
+    if request.method == 'POST':
+        form = ReclamacionForm(request.POST)
+        if form.is_valid():
+            reclamacion = form.save(commit=False)
+            reclamacion.casa = casa
+            reclamacion.usuario = request.user
+            reclamacion.save()
+            return redirect('detalle_casa', casa_id=casa_id)
+    else:
+        form = ReclamacionForm()
+
+    return render(request, 'presentar_reclamacion.html', {'form': form, 'casa': casa})
+
+
+def mostrar_reclamaciones(request):
+    reclamaciones = Reclamacion.objects.filter(usuario=request.user)
+    return render(request, 'mostrar_reclamaciones.html', {'reclamaciones': reclamaciones})
+
+def ver_detalle_reclamacion(request, reclamacion_id):
+    reclamacion = get_object_or_404(Reclamacion, pk=reclamacion_id)
+    return render(request, 'detalle_reclamacion.html', {'reclamacion': reclamacion})
+
+
+def info_reclamacion(request, reclamacion_id):
+    reclamacion = get_object_or_404(Reclamacion, pk=reclamacion_id)
+
+    comentarios = Comentario_Reclamacion.objects.filter(reclamacion=reclamacion)
+
+    if request.method == 'POST':
+        comentario_form = ComentarioForm(request.POST)
+        if comentario_form:
+            print("holi")
+        else:
+            print("suicidio")
+        if comentario_form.is_valid():
+            nuevo_comentario = comentario_form.save(commit=False)
+            nuevo_comentario.usuario = request.user
+            nuevo_comentario.reclamacion = reclamacion
+            nuevo_comentario.save()
+            return redirect('info_reclamacion', reclamacion_id=reclamacion_id)
+    else:
+        comentario_form = ComentarioForm()
+
+    return render(request, 'detalle_reclamacion.html', {
+        'reclamacion': reclamacion,
+        'comentarios': comentarios,
+        'comentario_form_rec': comentario_form,
+    })

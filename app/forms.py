@@ -1,6 +1,6 @@
 # en tu archivo forms.py
 from django import forms
-from .models import Casa, Comentario
+from .models import Casa, Comentario, Reclamacion
 
 class CasaForm(forms.ModelForm):
 
@@ -34,4 +34,14 @@ class ComentarioForm(forms.ModelForm):
         fields = ['texto']
         widgets = {
             'texto': forms.Textarea(attrs={'rows': 4}),
+        }
+        
+
+class ReclamacionForm(forms.ModelForm):
+    class Meta:
+        model = Reclamacion
+        fields = ['texto', 'pretensiones']
+        widgets = {
+            'texto': forms.Textarea(attrs={'rows': 4}),
+            'pretensiones': forms.Textarea(attrs={'rows': 4}),
         }

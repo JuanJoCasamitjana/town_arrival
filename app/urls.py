@@ -19,5 +19,9 @@ urlpatterns = [
     path('ventasAdmin/', ad.vistaVentas, name='ventasAdmin'),
     path('gestionAdmin/', ad.vistaClientes, name='gestionAdmin'),
     path('info_casa/<int:casa_id>/', views.info_casa, name='info_casa'),
+    path('casa/<int:casa_id>/presentar_reclamacion/', views.presentar_reclamacion, name='presentar_reclamacion'),
+    path('mis-reclamaciones', views.mostrar_reclamaciones, name='mis-reclamaciones'),
+    path('reclamacion/<int:reclamacion_id>/', views.ver_detalle_reclamacion, name='ver_detalle_reclamacion'),
+
 
 ]

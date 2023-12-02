@@ -1,0 +1,25 @@
+<!-- mostrar_reclamaciones.html -->
+
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Mis Reclamaciones</h2>
+  {% if reclamaciones %}
+    <ul>
+      {% for reclamacion in reclamaciones %}
+        <li>
+          <strong>Fecha de Publicación:</strong> {{ reclamacion.fecha_publicacion }}<br>
+          <strong>Texto:</strong> {{ reclamacion.texto }}<br>
+          <strong>Estado:</strong> {{ reclamacion.estado }}<br>
+          <a href="{% url 'ver_detalle_reclamacion' reclamacion.id %}">Ver Detalles</a><br>
+          <!-- Puedes agregar más detalles según tus necesidades -->
+          
+        </li>
+        <br>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No tienes reclamaciones en este momento.</p>
+  {% endif %}
+
+{% endblock %}

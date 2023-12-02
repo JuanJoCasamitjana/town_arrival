@@ -23,3 +23,25 @@ class Comentario(models.Model):
 
     def __str__(self):
         return f"Comentario de {self.usuario.username} en {self.casa.titulo}"
+    
+    
+class Reclamacion(models.Model):
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE)
+    casa = models.ForeignKey(Casa, on_delete=models.CASCADE)
+    texto = models.TextField(max_length=500)
+    pretensiones = models.TextField(max_length=500)
+    fecha_publicacion = models.DateTimeField(auto_now_add=True)
+    ESTADO = (('PENDIENTE', 'pendiente'), ('PROCESADA', 'procesada'), ('DESECHADA', 'desechada'))
+    estado = models.CharField(max_length=20, choices=ESTADO, default='pendiente')
+
+    def __str__(self):
+        return f"Reclamacion de {self.usuario.username} en {self.casa.titulo}"
+
+class Comentario_Reclamacion(models.Model):
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE)
+    reclamacion = models.ForeignKey(Reclamacion, on_delete=models.CASCADE)
+    texto = models.TextField(max_length=500)
+    fecha_publicacion = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Comentario de {self.usuario.username} en {self.reclamacion}"
