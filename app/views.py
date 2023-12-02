@@ -148,3 +148,6 @@ def pagina_de_error(request):
 
 def pagina_inexistente(request):
     return render(request, 'inexistente.html')
+
+def quienes_somos(request):
+    return render(request, 'quienes_somos.html')
