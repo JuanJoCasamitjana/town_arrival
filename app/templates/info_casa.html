@@ -2,19 +2,41 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  <div class="container mt-4">
-    <article class="card">
-      <img src="{{ casa.imagen }}" class="card-img-top" style="object-fit: cover; max-width: 50%; max-height: 50%;" alt="{{ casa.titulo }}">
-      <div class="card-body">
-        <h2 class="card-title">{{ casa.titulo }}</h2>
-        <p class="card-text">{{ casa.descripcion }}</p>
-        <p class="card-text"><strong>Localidad:</strong> {{ casa.localidad }}</p>
-        <p class="card-text"><strong>Dirección:</strong> {{ casa.direccion }}</p>
+<div class="container mt-4">
+  <article class="card">
+    <img src="{{ casa.imagen }}" class="card-img-top" style="object-fit: cover; max-width: 50%; max-height: 50%;"
+      alt="{{ casa.titulo }}">
+    <div class="card-body">
+      <h2 class="card-title">{{ casa.titulo }}</h2>
+      <p class="card-text">{{ casa.descripcion }}</p>
+      <p class="card-text"><strong>Localidad:</strong> {{ casa.localidad }}</p>
+      <p class="card-text"><strong>Dirección:</strong> {{ casa.direccion }}</p>
 
-        <!-- Otros detalles o enlaces aquí si es necesario -->
+      <form method="post" action="{% url 'agregar_carrito' casa.id %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary">Agregar al Carrito</button>
+      </form>
+    </div>
 
-        <a href="#" class="btn btn-primary">Contactar al Arrendador</a>
-      </div>
-    </article>
-  </div>
+    <a href="#" class="btn btn-primary">Contactar al Arrendador</a>
+
+        <!-- Sección de Comentarios -->
+        <h3>Comentarios</h3>
+        <ul>
+            {% for comentario in comentarios %}
+                <li>{{ comentario.texto }} - Por: {{ comentario.usuario.username }}</li>
+                <!-- Muestra los comentarios existentes -->
+            {% endfor %}
+        </ul>
+        {% if not es_propietario %}
+        <!-- Formulario para dejar un comentario -->
+        <form method="post">
+            {% csrf_token %}
+            {{ comentario_form.as_p }}
+            <button type="submit">Enviar Comentario</button>
+        </form>
+        {% endif %}
+</div>
+</article>
+</div>
 {% endblock %}

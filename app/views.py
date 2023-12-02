@@ -1,10 +1,14 @@
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Casa
+from .models import Casa, Comentario
 from django.db.models import Q
 import requests
-from .forms import CasaForm, ImageUploadForm
+from .forms import CasaForm, ImageUploadForm, ComentarioForm
 from django.contrib.auth.decorators import login_required
+
+
+
+API_KEY = '78a7e53f033d954800e7f90ff1fcfca2'
 
 def busqueda(request):
     query = request.GET.get('query', '')
@@ -27,7 +31,30 @@ def catalogo_casas(request):
 
 def info_casa(request, casa_id):
     casa = get_object_or_404(Casa, pk=casa_id)
-    return render(request, 'info_casa.html', {'casa': casa})
+    es_propietario = False
+
+    if request.user.is_authenticated and casa.arrendador == request.user.profile:
+        es_propietario = True
+
+    comentarios = Comentario.objects.filter(casa=casa)
+
+    if request.method == 'POST' and not es_propietario:
+        comentario_form = ComentarioForm(request.POST)
+        if comentario_form.is_valid():
+            nuevo_comentario = comentario_form.save(commit=False)
+            nuevo_comentario.usuario = request.user
+            nuevo_comentario.casa = casa
+            nuevo_comentario.save()
+            return redirect('info_casa', casa_id=casa_id)
+    else:
+        comentario_form = ComentarioForm()
+
+    return render(request, 'info_casa.html', {
+        'casa': casa,
+        'es_propietario': es_propietario,
+        'comentarios': comentarios,
+        'comentario_form': comentario_form,
+    })
 
 @login_required
 def crear_casa(request):
@@ -54,19 +81,26 @@ def crear_casa(request):
 
     return render(request, 'crear_casa.html', {'form': form, 'image_form': image_form})
 
+import requests
+
 def upload_image_to_external_service(image_file):
-    # Lógica para subir la imagen al servicio externo y obtener la URL
-    # Este es un ejemplo simple utilizando el servicio 'imgbb', pero puedes ajustarlo según tus necesidades
-    upload_url = 'https://api.imgbb.com/1/upload'
-    api_key = '78a7e53f033d954800e7f90ff1fcfca2'  # Reemplaza esto con tu clave de API real
+    try:
+        upload_url = 'https://api.imgbb.com/1/upload'
+        api_key = API_KEY
 
-    files = {'image': image_file}
-    params = {'key': api_key}
+        files = {'image': image_file}
+        params = {'key': api_key}
 
-    response = requests.post(upload_url, params=params, files=files)
-    result = response.json()
+        response = requests.post(upload_url, params=params, files=files)
 
-    if 'data' in result and 'url' in result['data']:
-        return result['data']['url']
+        # Verifica si la solicitud fue exitosa
+        response.raise_for_status()
+
+        result = response.json()
+
+        if 'data' in result and 'url' in result['data']:
+            return result['data']['url']
+    except Exception as e:
+        print(f"Error al cargar la imagen: {e}")
 
     return None
