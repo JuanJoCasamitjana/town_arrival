@@ -19,5 +19,11 @@ urlpatterns = [
     path('ventasAdmin/', ad.vistaVentas, name='ventasAdmin'),
     path('gestionAdmin/', ad.vistaClientes, name='gestionAdmin'),
     path('info_casa/<int:casa_id>/', views.info_casa, name='info_casa'),
+    path('contacto/', views.contacto, name='contacto'),
+    path('formulario-contacto/', views.mostrar_formulario_contacto, name='mostrar_formulario_contacto'),
+    path('error-formulario/', views.pagina_de_error, name='pagina_de_error'),
+    path('exito-formulario/', views.pagina_de_exito, name='pagina_de_exito'),
+    path('inexistente/', views.pagina_inexistente, name='pagina_inexistente'),
+    path('información/', views.quienes_somos, name='quienes_somos'),
 
 ]
