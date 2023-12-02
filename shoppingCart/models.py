@@ -2,6 +2,7 @@ from django.apps import apps
 from django.db import models
 from django.contrib.auth.models import User
 from users.models import Alquiler
+
 class Carrito(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     productos = models.ManyToManyField(Alquiler, blank=True)  # Importación diferida

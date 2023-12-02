@@ -17,7 +17,7 @@ def pagos(request):
                 hogar.ocupadas.add(alq)
                 hogar.save()
             cliente.save()
-            todos = cliente.alquiladas.all()
+            todos = productos_en_carrito
             # Restablecer el carrito del usuario
             carrito_usuario.productos.clear()
             carrito_usuario.total = 0

@@ -1,6 +1,6 @@
 # en tu archivo forms.py
 from django import forms
-from .models import Casa
+from .models import Casa, Comentario
 
 class CasaForm(forms.ModelForm):
 
@@ -27,3 +27,11 @@ class CasaForm(forms.ModelForm):
 
 class ImageUploadForm(forms.Form):
     imagen = forms.ImageField()
+
+class ComentarioForm(forms.ModelForm):
+    class Meta:
+        model = Comentario
+        fields = ['texto']
+        widgets = {
+            'texto': forms.Textarea(attrs={'rows': 4}),
+        }

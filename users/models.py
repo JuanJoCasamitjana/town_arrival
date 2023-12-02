@@ -3,15 +3,15 @@ from django.contrib.auth.models import User
 
 from django.apps import apps
 
-# Create your models here.
 class Alquiler(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    alquilo = models.OneToOneField('app.Casa',on_delete=models.CASCADE, blank=True)
-    FechaInicio = models.DateTimeField()
-    FechaFinal = models.DateTimeField()
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    alquilo = models.ForeignKey('app.Casa', on_delete=models.CASCADE)  # Referencia a la Casa alquilada
+    FechaInicio = models.DateField()
+    FechaFinal = models.DateField()
     
     def __str__(self):
-        return self.user.username
+        return f"{self.user.username} - {self.alquilo.titulo}"
+    
 class Profile(models.Model):
     #Modelo de usuario basico de Django
     user = models.OneToOneField(User, on_delete=models.CASCADE)

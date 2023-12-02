@@ -1,9 +1,9 @@
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Casa
+from .models import Casa, Comentario
 from django.db.models import Q
 import requests
-from .forms import CasaForm, ImageUploadForm
+from .forms import CasaForm, ImageUploadForm, ComentarioForm
 from django.contrib.auth.decorators import login_required
 
 
@@ -31,7 +31,30 @@ def catalogo_casas(request):
 
 def info_casa(request, casa_id):
     casa = get_object_or_404(Casa, pk=casa_id)
-    return render(request, 'info_casa.html', {'casa': casa})
+    es_propietario = False
+
+    if request.user.is_authenticated and casa.arrendador == request.user.profile:
+        es_propietario = True
+
+    comentarios = Comentario.objects.filter(casa=casa)
+
+    if request.method == 'POST' and not es_propietario:
+        comentario_form = ComentarioForm(request.POST)
+        if comentario_form.is_valid():
+            nuevo_comentario = comentario_form.save(commit=False)
+            nuevo_comentario.usuario = request.user
+            nuevo_comentario.casa = casa
+            nuevo_comentario.save()
+            return redirect('info_casa', casa_id=casa_id)
+    else:
+        comentario_form = ComentarioForm()
+
+    return render(request, 'info_casa.html', {
+        'casa': casa,
+        'es_propietario': es_propietario,
+        'comentarios': comentarios,
+        'comentario_form': comentario_form,
+    })
 
 @login_required
 def crear_casa(request):
