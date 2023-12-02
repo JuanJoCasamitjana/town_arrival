@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{%block content %}
+<body>
+    <h1>Clientes:</h1>
+    
+    <ul>
+        {% for nombre in nombres %}
+            <li>{{ nombre }}</li>
+        {% endfor %}
+    </ul>
+    
+</body>
+</html>
+{% endblock %}

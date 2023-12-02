@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<body>
+    <h1>Tu compra ha sido efectuada</h1>
+    <ul>
+        {% for alquiler in todos %}
+            <h5>Casa:</h5>
+            <li>{{ alquiler.alquilo.titulo }}</li>
+        {% endfor %}
+    </ul>
+    <li>{{ total_vendido }}
+    <a class='btn btn-primary' href='/catalogo-casas'>Volver al catálogo</a>
+</body>
+{% endblock %}

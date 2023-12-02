@@ -1,15 +1,15 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  <h2>Crear Casa</h2>
+  <h2 class="text-center">Crear Casa</h2>
 
-  <form method="post" enctype="multipart/form-data">
+  <form class="d-flex flex-column align-items-center align-middle" method="post" enctype="multipart/form-data">
     {% csrf_token %}
     {{ form.as_p }}
     
     <h3>Subir Imagen</h3>
     {{ image_form.as_p }}
     
-    <button type="submit">Guardar</button>
+    <button class="btn-lg btn-outline-dark" type="submit">Guardar</button>
   </form>
 {% endblock %}
