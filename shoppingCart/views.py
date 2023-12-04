@@ -5,6 +5,7 @@ from app.models import Casa
 from app.models import Alquiler
 from datetime import datetime, timedelta
 from django.db.models import Q
+from app.forms import AlquilerForm
 
 def carrito(request):
     try:
@@ -32,24 +33,24 @@ def agregar_carrito(request, casa_id):
         if request.user.is_authenticated:
             casa = get_object_or_404(Casa, pk=casa_id)
             usuario = request.user
-            
-            # Supongamos que deseas establecer la fecha de inicio como el momento actual
-            fecha_inicio = datetime.today()
-            
-            # Supongamos que el alquiler dura 7 días a partir de la fecha de inicio
-            fecha_final = fecha_inicio + timedelta(days=7)
+            form_alquiler = AlquilerForm(request.POST)
+            if form_alquiler.is_valid():
+                fecha_inicio = form_alquiler.cleaned_data['fecha_inicio']
+                fecha_final = form_alquiler.cleaned_data['fecha_fin']
+                fecha_inicio = datetime.combine(fecha_inicio, datetime.min.time())
+                fecha_final = datetime.combine(fecha_final, datetime.max.time())
             
             # Verificar si el usuario ya tiene un alquiler activo para esta casa
-            alquiler_existente = Alquiler.objects.filter(
-                Q(alquilo=casa) &(
-                Q(FechaInicio__lte=fecha_inicio, FechaFinal__gte=fecha_inicio) |
-                Q(FechaInicio__lte=fecha_final, FechaFinal__gte=fecha_final) |
-                Q(FechaInicio__gte=fecha_inicio, FechaFinal__lte=fecha_final))).exists()
+                alquiler_existente = Alquiler.objects.filter(
+                    Q(alquilo=casa) &(
+                    Q(FechaInicio__lte=fecha_inicio, FechaFinal__gte=fecha_inicio) |
+                    Q(FechaInicio__lte=fecha_final, FechaFinal__gte=fecha_final) |
+                    Q(FechaInicio__gte=fecha_inicio, FechaFinal__lte=fecha_final))).exists()
             
-            if alquiler_existente:
-                messages.error(request, f"Ya tienes un alquiler activo para esta casa.")
-                print("tontito borra la abse de datos")
-                return redirect('info_casa', casa_id=casa_id)
+                if alquiler_existente:
+                    messages.error(request, f"Ya tienes un alquiler activo para esta casa.")
+                    print("tontito borra la abse de datos")
+                    return redirect('info_casa', casa_id=casa_id)
             
             alquiler, created = Alquiler.objects.get_or_create(
                 user=usuario,
