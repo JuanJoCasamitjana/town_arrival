@@ -5,7 +5,12 @@ import requests
 from .models import Casa, Comentario, Reclamacion
 from .forms import ReclamacionForm
 from .forms import CasaForm, ImageUploadForm, ComentarioForm
+from .forms import CasaForm, ImageUploadForm, ComentarioForm, AlquilerForm
 from django.contrib.auth.decorators import login_required
+from django.core.mail import send_mail
+from django.conf import settings
+from django.http import HttpResponseRedirect
+from django.urls import reverse
 
 
 
@@ -33,7 +38,7 @@ def catalogo_casas(request):
 def info_casa(request, casa_id):
     casa = get_object_or_404(Casa, pk=casa_id)
     es_propietario = False
-
+    form_alquiler = AlquilerForm()
     if request.user.is_authenticated and casa.arrendador == request.user.profile:
         es_propietario = True
 
@@ -55,6 +60,7 @@ def info_casa(request, casa_id):
         'es_propietario': es_propietario,
         'comentarios': comentarios,
         'comentario_form': comentario_form,
+        'alquiler_form': form_alquiler,
     })
 
 @login_required
@@ -138,3 +144,45 @@ def info_reclamacion(request, reclamacion_id):
     return render(request, 'detalle_reclamacion.html', {
         'reclamacion': reclamacion,
     })
+def mostrar_formulario_contacto(request):
+    return render(request, 'contacto.html')
+
+def contacto(request):
+    if request.method == 'POST':
+        email = request.POST.get('email', '')
+        motivo = request.POST.get('motivo', '')
+        mensaje = request.POST.get('mensaje', '')
+
+        asunto = f"Mensaje de contacto: {motivo}"
+        cuerpo_mensaje = f"Email: {email}\n\nMensaje: {mensaje}"
+
+        try:
+            send_mail(
+                asunto,
+                cuerpo_mensaje,
+                settings.EMAIL_HOST_USER,  # Remitente
+                [settings.EMAIL_HOST_USER],  # Se autoenvía el correo
+                fail_silently=False,
+            )
+            # Redirige a una página de éxito después de enviar el correo
+            return HttpResponseRedirect(reverse('pagina_de_exito'))
+        except Exception as e:
+            # Maneja errores en el envío del correo
+            print(f"Error al enviar el correo: {e}")
+            # En caso de error, redirige a una página de error
+            return HttpResponseRedirect(reverse('pagina_de_error'))
+
+    # Si el método no es POST, muestra el formulario nuevamente
+    return render(request, 'contacto.html')
+
+def pagina_de_exito(request):
+    return render(request, 'exito.html')
+
+def pagina_de_error(request):
+    return render(request, 'error.html')
+
+def pagina_inexistente(request):
+    return render(request, 'inexistente.html')
+
+def quienes_somos(request):
+    return render(request, 'quienes_somos.html')

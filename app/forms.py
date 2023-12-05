@@ -35,6 +35,7 @@ class ComentarioForm(forms.ModelForm):
         widgets = {
             'texto': forms.Textarea(attrs={'rows': 4}),
         }
+
         
 
 class ReclamacionForm(forms.ModelForm):
@@ -45,3 +46,20 @@ class ReclamacionForm(forms.ModelForm):
             'texto': forms.Textarea(attrs={'rows': 4}),
             'pretensiones': forms.Textarea(attrs={'rows': 4}),
         }
+
+
+class AlquilerForm(forms.Form):
+    fecha_inicio = forms.DateField(
+        label='Fecha de inicio:',
+        widget=forms.DateInput(
+            format='%d/%m/%Y',
+            attrs={'type': 'date'}
+            )
+        )
+    fecha_fin = forms.DateField(
+        label='Fecha de fin:',
+        widget=forms.DateInput(
+            format='%d/%m/%Y',
+            attrs={'type': 'date'}
+            )
+        )

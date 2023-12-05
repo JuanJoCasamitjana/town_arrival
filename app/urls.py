@@ -22,6 +22,12 @@ urlpatterns = [
     path('casa/<int:casa_id>/presentar_reclamacion/', views.presentar_reclamacion, name='presentar_reclamacion'),
     path('mis-reclamaciones', views.mostrar_reclamaciones, name='mis-reclamaciones'),
     path('reclamacion/<int:reclamacion_id>/', views.ver_detalle_reclamacion, name='ver_detalle_reclamacion'),
+    path('contacto/', views.contacto, name='contacto'),
+    path('formulario-contacto/', views.mostrar_formulario_contacto, name='mostrar_formulario_contacto'),
+    path('error-formulario/', views.pagina_de_error, name='pagina_de_error'),
+    path('exito-formulario/', views.pagina_de_exito, name='pagina_de_exito'),
+    path('inexistente/', views.pagina_inexistente, name='pagina_inexistente'),
+    path('información/', views.quienes_somos, name='quienes_somos'),
 
 
 ]
