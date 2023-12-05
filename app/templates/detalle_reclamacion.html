@@ -18,11 +18,9 @@
           <!-- Muestra los comentarios existentes -->
       {% endfor %}
   </ul>
-    <form method="post">
-      {% csrf_token %}
-      <p>{{ comentario_form_rec.as_p }}
-        
-      </p>
-      <button type="submit">Enviar Comentario</button>
-    </form>
+  <form method="post">
+    {% csrf_token %}
+    {{ comentario_form_rec.as_p }}  
+    <button type="submit">Enviar Comentario</button>
+  </form>
 {% endblock %}

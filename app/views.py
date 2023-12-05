@@ -139,11 +139,7 @@ def info_reclamacion(request, reclamacion_id):
     comentarios = Comentario_Reclamacion.objects.filter(reclamacion=reclamacion)
 
     if request.method == 'POST':
-        comentario_form = ComentarioForm(request.POST)
-        if comentario_form:
-            print("holi")
-        else:
-            print("suicidio")
+        comentario_form_rec = ComentarioForm(request.POST)
         if comentario_form.is_valid():
             nuevo_comentario = comentario_form.save(commit=False)
             nuevo_comentario.usuario = request.user
@@ -156,5 +152,5 @@ def info_reclamacion(request, reclamacion_id):
     return render(request, 'detalle_reclamacion.html', {
         'reclamacion': reclamacion,
         'comentarios': comentarios,
-        'comentario_form_rec': comentario_form,
+        'comentario_form_rec': comentario_form_rec,
     })
