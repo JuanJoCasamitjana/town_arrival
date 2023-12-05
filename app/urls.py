@@ -6,6 +6,7 @@ from shoppingCart import views as v
 from pagos import views as pago
 from vistasAdministrador import views as ad
 
+
 urlpatterns = [
     path('', views.busqueda, name='busqueda'),
     path("",views.catalogo_casas,name="index"),
@@ -16,5 +17,6 @@ urlpatterns = [
     path('agregar_carrito/<int:casa_id>/', v.agregar_carrito, name='agregar_carrito'),
     path('pagos/', pago.pagos, name='pagos'),
     path('ventasAdmin/', ad.vistaVentas, name='ventasAdmin'),
-    path('gestionAdmin/', ad.vistaClientes, name='gestionAdmin')
+    path('gestionAdmin/', ad.vistaClientes, name='gestionAdmin'),
+    path('editar_casa/<int:pk>', ad.editar_casa,name='editar_casa' )
 ]

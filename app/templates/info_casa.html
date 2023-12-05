@@ -16,6 +16,11 @@
         {% csrf_token %}
         <button type="submit" class="btn btn-primary">Agregar al Carrito</button>
       </form>
+
+      {% if user.is_superuser %}
+        <a href="{% url 'editar_casa' pk=casa.id %}" class="btn btn-primary">Editar Casa</a>
+      {% endif %}
+
     </div>
 
     <a href="#" class="btn btn-primary">Contactar al Arrendador</a>
