@@ -169,6 +169,11 @@ def mostrar_alquileres(request):
             # Cambia el estado a 'EN CURSO'
             alquiler.estado = 'EN CURSO'
             alquiler.save()
+            
+        if alquiler.FechaFinal < fecha_actual:
+            alquiler.estado = 'FINALIZADO'
+            alquiler.save()
+
 
     # Vuelve a obtener los alquileres después de la actualización
     alquileres = Alquiler.objects.filter(user=request.user)

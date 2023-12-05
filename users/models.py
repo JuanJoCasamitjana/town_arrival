@@ -8,7 +8,7 @@ class Alquiler(models.Model):
     alquilo = models.ForeignKey('app.Casa', on_delete=models.CASCADE)  # Referencia a la Casa alquilada
     FechaInicio = models.DateField()
     FechaFinal = models.DateField()
-    ESTADO = (('PENDIENTE', 'pendiente'), ('EN CURSO', 'en curso'), ('CANCELAD0', 'CANCELADO'))
+    ESTADO = (('PENDIENTE', 'pendiente'), ('EN CURSO', 'en curso'), ('FINALIZADO', 'FINALIZADO'))
     estado = models.CharField(max_length=20, choices=ESTADO, default='PENDIENTE')
     
     
