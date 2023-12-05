@@ -1,18 +1,37 @@
 from django.shortcuts import redirect, render, get_object_or_404
+from django.urls import reverse
 from shoppingCart.models import Carrito
 from django.contrib import messages
+from users.models import Profile
 from app.models import Casa
 from app.models import Alquiler
 from datetime import datetime, timedelta
 from django.db.models import Q
+from paypal.standard.forms import PayPalPaymentsForm
+import uuid
+from django.conf import settings
 
 def carrito(request):
+    auth =request.user.is_authenticated
     try:
-        if request.user.is_authenticated:
+        if auth:
             # Obtener el carrito del usuario o crear uno nuevo si no existe
+            host = request.get_host()
+            nombre = 'Alquiler'
             carrito_usuario, created = Carrito.objects.get_or_create(user=request.user)
             productos_en_carrito = carrito_usuario.productos.all()
             total_carrito = carrito_usuario.total
+            paypal_checkout = {
+                'bussines': 'sb-sz32b23443655@business.example.com',
+                'mount': total_carrito,
+                'item_name': nombre,
+                'invoice': uuid.uuid4(),
+                'currency_code': 'EUR',
+                'notify_url': f"http://{host}{reverse('paypal-ipn')}",
+                'return_url': f"hhtp://{host}{reverse('payment_success')}",
+                'cancel_url': f"http://{host}{reverse('payment_failed')}"
+            }
+            paypal_payment = PayPalPaymentsForm(initial= paypal_checkout)
         else:
             productos_en_carrito = []
             total_carrito = 0
@@ -24,8 +43,38 @@ def carrito(request):
 
     return render(request, 'carrito.html', {
         'productos_en_carrito': productos_en_carrito,
-        'total_carrito': total_carrito
+        'total_carrito': total_carrito,
+        'paypal': paypal_payment,
+        'auth' : auth
     })
+
+def payment_success(request):
+    user_payment = Carrito.objects.get(user=request.user)
+    cliente = Profile.objects.get(user=request.user)
+    productos_en_carrito = user_payment.productos.all()
+    total_vendido = user_payment.total
+    
+    for alq in productos_en_carrito:
+        cliente.alquiladas.add(alq)
+        hogar = Casa.objects.get(titulo = alq.alquilo.titulo)
+        hogar.ocupadas.add(alq)
+        hogar.save()
+    cliente.save()
+    todos = productos_en_carrito
+    # Restablecer el carrito del usuario
+    user_payment.productos.clear()
+    user_payment.total = 0
+    user_payment.save()
+
+    return render(request, 'pagos.html', {
+        'todos': todos,
+        'total_vendido': total_vendido
+    })
+
+def payment_failed(request):
+
+    return render(request, 'pago_cancelado.html')
+
 
 def agregar_carrito(request, casa_id):
     if request.method == 'POST':
@@ -101,3 +150,31 @@ def eliminar_del_carrito(request, producto_id):
 
     return redirect('carrito')
 
+def pagos(request):
+    if request.method == 'POST':
+        if request.user.is_authenticated:
+            user_payment = Carrito.objects.get(user=request.user)
+            cliente = Profile.objects.get(user=request.user)
+            productos_en_carrito = user_payment.productos.all()
+            total_vendido = user_payment.total
+            
+            for alq in productos_en_carrito:
+                cliente.alquiladas.add(alq)
+                hogar = Casa.objects.get(titulo = alq.alquilo.titulo)
+                hogar.ocupadas.add(alq)
+                hogar.save()
+            cliente.save()
+            todos = productos_en_carrito
+            # Restablecer el carrito del usuario
+            user_payment.productos.clear()
+            user_payment.total = 0
+            user_payment.save()
+        else:
+            productos_en_carrito = []
+            total_vendido = 0
+
+
+    return render(request, 'pagos.html', {
+        'todos': todos,
+        'total_vendido': total_vendido
+    })

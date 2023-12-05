@@ -20,10 +20,10 @@
         {% csrf_token %}
         <button type="submit" class="btn btn-primary">Pago Contrarrembolso</button>
     </form>
-    <form method="post" action="{% url 'stripePago' %}">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-primary">Comprar ahora</button>
-    </form>
+    {% if auth %}
+        {{paypal.render}}     
+    {% endif %}
+    
 </body>
 
 {% endblock %}
