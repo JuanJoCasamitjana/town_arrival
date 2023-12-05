@@ -7,8 +7,8 @@ from pagos import views as pago
 from vistasAdministrador import views as ad
 
 urlpatterns = [
-    path('busqueda/', views.busqueda, name='busqueda'),
-    path('',views.catalogo_casas,name="index"),
+    path('',views.busqueda,name="index"),
+    path('inicio',views.busqueda,name="inicio"),
     path('catalogo-casas/', views.catalogo_casas, name='catalogo_casas'),
     path('casa/<int:casa_id>/', views.info_casa, name='detalle_casa'),
     path('nueva-casa', views.crear_casa, name='crear_casa'),

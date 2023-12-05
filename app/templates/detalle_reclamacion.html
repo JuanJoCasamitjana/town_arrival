@@ -9,18 +9,7 @@
   <p><strong>Texto:</strong> {{ reclamacion.texto }}</p>
   <p><strong>Pretensiones:</strong> {{ reclamacion.pretensiones }}</p>
   <p><strong>Fecha de Publicación:</strong> {{ reclamacion.fecha_publicacion }}</p>
+  <p><strong>Contestación: </strong> {{ reclamacion.contestacion }}</p>
   <p><strong>Estado:</strong> {{ reclamacion.estado }}</p>
   <!-- Sección de Comentarios -->
-  <h3>Comentarios</h3>
-  <ul>  
-      {% for comentario in comentarios %}
-          <li>{{ comentario.texto }} - Por: {{ comentario.usuario.username }}</li>
-          <!-- Muestra los comentarios existentes -->
-      {% endfor %}
-  </ul>
-  <form method="post">
-    {% csrf_token %}
-    {{ comentario_form_rec.as_p }}  
-    <button type="submit">Enviar Comentario</button>
-  </form>
 {% endblock %}

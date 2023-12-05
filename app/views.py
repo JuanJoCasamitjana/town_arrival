@@ -1,9 +1,8 @@
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Casa, Comentario, Comentario_Reclamacion
 from django.db.models import Q
 import requests
-from .models import Reclamacion
+from .models import Casa, Comentario, Reclamacion
 from .forms import ReclamacionForm
 from .forms import CasaForm, ImageUploadForm, ComentarioForm
 from django.contrib.auth.decorators import login_required
@@ -136,21 +135,6 @@ def ver_detalle_reclamacion(request, reclamacion_id):
 def info_reclamacion(request, reclamacion_id):
     reclamacion = get_object_or_404(Reclamacion, pk=reclamacion_id)
 
-    comentarios = Comentario_Reclamacion.objects.filter(reclamacion=reclamacion)
-
-    if request.method == 'POST':
-        comentario_form_rec = ComentarioForm(request.POST)
-        if comentario_form.is_valid():
-            nuevo_comentario = comentario_form.save(commit=False)
-            nuevo_comentario.usuario = request.user
-            nuevo_comentario.reclamacion = reclamacion
-            nuevo_comentario.save()
-            return redirect('info_reclamacion', reclamacion_id=reclamacion_id)
-    else:
-        comentario_form = ComentarioForm()
-
     return render(request, 'detalle_reclamacion.html', {
         'reclamacion': reclamacion,
-        'comentarios': comentarios,
-        'comentario_form_rec': comentario_form_rec,
     })
