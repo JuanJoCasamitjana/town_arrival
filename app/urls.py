@@ -25,5 +25,6 @@ urlpatterns = [
     path('exito-formulario/', views.pagina_de_exito, name='pagina_de_exito'),
     path('inexistente/', views.pagina_inexistente, name='pagina_inexistente'),
     path('información/', views.quienes_somos, name='quienes_somos'),
+    path('alquileres/', views.mostrar_alquileres, name='alquileres'),
 
 ]

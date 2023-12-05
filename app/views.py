@@ -1,5 +1,8 @@
+from django.utils import timezone
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
+
+from users.models import Alquiler
 from .models import Casa, Comentario
 from django.db.models import Q
 import requests
@@ -152,3 +155,22 @@ def pagina_inexistente(request):
 
 def quienes_somos(request):
     return render(request, 'quienes_somos.html')
+
+def mostrar_alquileres(request):
+    # Obtén la fecha actual
+    fecha_actual = timezone.now().date()
+
+    # Filtra los alquileres del usuario
+    alquileres = Alquiler.objects.filter(user=request.user)
+
+    # Actualiza el estado de los alquileres según la fecha actual
+    for alquiler in alquileres:
+        if alquiler.FechaInicio <= fecha_actual <= alquiler.FechaFinal:
+            # Cambia el estado a 'EN CURSO'
+            alquiler.estado = 'EN CURSO'
+            alquiler.save()
+
+    # Vuelve a obtener los alquileres después de la actualización
+    alquileres = Alquiler.objects.filter(user=request.user)
+
+    return render(request, 'mostrar_alquileres.html', {'alquileres': alquileres})

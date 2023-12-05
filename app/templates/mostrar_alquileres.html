@@ -1,0 +1,24 @@
+<!-- mostrar_reclamaciones.html -->
+
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Mis Alquileres</h2>
+  {% if alquileres %}
+    <ul>
+      {% for alquiler in alquileres %}
+        <li>
+          <strong>Casa:</strong> {{ alquiler.alquilo.titulo }}<br>
+          <strong>Fecha de inicio del alquiler:</strong> {{ alquiler.FechaInicio }}<br>
+          <strong>Fecha de finalizacion del alquiler:</strong> {{ alquiler.FechaFinal }}<br>
+          <strong>Estado: </strong> {{ alquiler.estado }}<br>
+          
+        </li>
+        <br>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No tienes alquileres en este momento.</p>
+  {% endif %}
+
+{% endblock %}
