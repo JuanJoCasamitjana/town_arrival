@@ -2,7 +2,7 @@
 {% block content %}
 <body>
     <h1>Carrito de Compras</h1>
-    
+    <p> Si el total supera los 20€ no se aplicarán los gastos de gestión</p>
     <!-- Mostrar productos en el carrito -->
     <ul>
         {% for alquiler in productos_en_carrito %}
@@ -12,9 +12,12 @@
             </li>
         {% endfor %}
     </ul>
-    
+    {% if gestion %}
+        <p>Añadido 10€ de gastos de gestion al no superar los 20€ en total</p>    
+        <p>Precio original: ${{total_carrito}}
+    {% endif %}
     <!-- Mostrar el total del carrito -->
-    <p>Total: ${{ total_carrito }}</p>
+    <p>Total: ${{ total_post_gestion }}</p>
   
     <form method="post" action="{% url 'pagos' %}">
         {% csrf_token %}

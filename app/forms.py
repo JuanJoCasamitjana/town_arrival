@@ -36,6 +36,7 @@ class ComentarioForm(forms.ModelForm):
             'texto': forms.Textarea(attrs={'rows': 4}),
         }
 
+tipos =("LB", "Dejar las llaves en buzon"),("LV", "Dejar las llaves con vecino"), ("LP", "Entrega de llaves personal")
 class AlquilerForm(forms.Form):
     fecha_inicio = forms.DateField(
         label='Fecha de inicio:',
@@ -51,3 +52,4 @@ class AlquilerForm(forms.Form):
             attrs={'type': 'date'}
             )
         )
+    modoEntrega = forms.ChoiceField(choices = tipos)

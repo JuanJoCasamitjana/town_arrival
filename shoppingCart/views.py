@@ -22,9 +22,14 @@ def carrito(request):
             carrito_usuario, created = Carrito.objects.get_or_create(user=request.user)
             productos_en_carrito = carrito_usuario.productos.all()
             total_carrito = carrito_usuario.total
+            gestion=total_carrito<20
+            if gestion:
+                total_post_gestion= total_carrito + 10
+            else:
+                total_post_gestion = total_carrito
             paypal_checkout = {
                 'bussines': 'sb-sz32b23443655@business.example.com',
-                'mount': total_carrito,
+                'mount': total_post_gestion,
                 'item_name': nombre,
                 'invoice': uuid.uuid4(),
                 'currency_code': 'EUR',
@@ -46,7 +51,9 @@ def carrito(request):
         'productos_en_carrito': productos_en_carrito,
         'total_carrito': total_carrito,
         'paypal': paypal_payment,
-        'auth' : auth
+        'auth' : auth,
+        'gestion': gestion,
+        'total_post_gestion': total_post_gestion
     })
 
 def payment_success(request):
@@ -158,7 +165,8 @@ def pagos(request):
             cliente = Profile.objects.get(user=request.user)
             productos_en_carrito = user_payment.productos.all()
             total_vendido = user_payment.total
-            
+            if total_vendido < 20:
+                total_vendido = total_vendido + 10
             for alq in productos_en_carrito:
                 cliente.alquiladas.add(alq)
                 hogar = Casa.objects.get(titulo = alq.alquilo.titulo)
