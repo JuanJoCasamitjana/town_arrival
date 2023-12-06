@@ -4,6 +4,7 @@ from .forms import UserRegistrationForm, UserProfileForm, UserLoginForm, ImageUp
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout, authenticate
 from app.views import upload_image_to_external_service
+from django.contrib.auth.models import User
 
 def register(request):
     if request.method == 'POST':
@@ -59,9 +60,13 @@ def user_login(request):
         login_form = UserLoginForm(request.POST)
 
         if login_form.is_valid():
-            username = login_form.cleaned_data['username']
+            email = login_form.cleaned_data['email']
+            try:
+                user = User.objects.get(email=email)
+            except:
+                return render(request, 'login.html', {'login_form': login_form})
             password = login_form.cleaned_data['password']
-            user = authenticate(request, username=username, password=password)
+            user = authenticate(request, username=user.username, password=password)
 
             if user is not None:
                 login(request, user)
