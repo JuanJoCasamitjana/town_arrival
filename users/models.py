@@ -8,6 +8,11 @@ class Alquiler(models.Model):
     alquilo = models.ForeignKey('app.Casa', on_delete=models.CASCADE)  # Referencia a la Casa alquilada
     FechaInicio = models.DateField()
     FechaFinal = models.DateField()
+    modosEntrega = models.CharField(max_length=2,choices=[
+        ("LB", "Dejar las llaves en buzon"),
+        ("LV", "Dejar las llaves con vecino"),
+        ("LP", "Entrega de llaves personal")
+    ],default='LP')
     
     def __str__(self):
         return f"{self.user.username} - {self.alquilo.titulo}"
