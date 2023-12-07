@@ -24,7 +24,8 @@ urlpatterns = [
     path('exito-formulario/', views.pagina_de_exito, name='pagina_de_exito'),
     path('inexistente/', views.pagina_inexistente, name='pagina_inexistente'),
     path('información/', views.quienes_somos, name='quienes_somos'),
-    path('payment_success', v.payment_success, name='payment_success'),
-    path('payment_failed/', v.payment_failed, name='payment_failed'),
+    path('payment_successful', v.payment_successful, name='payment_successful'),
+	path('payment_cancelled', v.payment_cancelled, name='payment_cancelled'),
+	path('stripe_webhook', v.stripe_webhook, name='stripe_webhook')
 
 ]
