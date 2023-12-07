@@ -3,7 +3,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from .models import Casa, Comentario
 from django.db.models import Q
 import requests
-from .forms import CasaForm, ImageUploadForm, ComentarioForm
+from .forms import CasaForm, ImageUploadForm, ComentarioForm, AlquilerForm
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
 from django.conf import settings
@@ -36,7 +36,7 @@ def catalogo_casas(request):
 def info_casa(request, casa_id):
     casa = get_object_or_404(Casa, pk=casa_id)
     es_propietario = False
-
+    form_alquiler = AlquilerForm()
     if request.user.is_authenticated and casa.arrendador == request.user.profile:
         es_propietario = True
 
@@ -58,6 +58,7 @@ def info_casa(request, casa_id):
         'es_propietario': es_propietario,
         'comentarios': comentarios,
         'comentario_form': comentario_form,
+        'alquiler_form': form_alquiler,
     })
 
 @login_required
