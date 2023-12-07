@@ -1,6 +1,6 @@
 # en tu archivo forms.py
 from django import forms
-from .models import Casa, Comentario
+from .models import Casa, Comentario, Reclamacion
 
 class CasaForm(forms.ModelForm):
 
@@ -51,6 +51,19 @@ class ComentarioForm(forms.ModelForm):
                 }),
         }
 
+        
+
+class ReclamacionForm(forms.ModelForm):
+    class Meta:
+        model = Reclamacion
+        fields = ['texto', 'pretensiones']
+        widgets = {
+            'texto': forms.Textarea(attrs={'rows': 4}),
+            'pretensiones': forms.Textarea(attrs={'rows': 4}),
+        }
+
+tipos =("LB", "Dejar las llaves en buzon"),("LV", "Dejar las llaves con vecino"), ("LP", "Entrega de llaves personal")
+
 class AlquilerForm(forms.Form):
     fecha_inicio = forms.DateField(
         label='Fecha de inicio:',
@@ -72,3 +85,5 @@ class AlquilerForm(forms.Form):
                 }
             )
         )
+    modoEntrega = forms.ChoiceField(choices = tipos)
+
