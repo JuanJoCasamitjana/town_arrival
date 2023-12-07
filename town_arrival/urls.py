@@ -21,5 +21,4 @@ urlpatterns = [
     path("",include("app.urls")),
     path("users/",include("users.urls")),
     path('admin/', admin.site.urls),
-    path('', include('paypal.standard.ipn.urls')),
 ]
