@@ -4,7 +4,7 @@ from django.contrib.auth.models import AbstractUser, Group, Permission
 from django.apps import apps
 
 
-class User(AbstractUser, models.Model):
+class User(AbstractUser):
     email = models.EmailField(unique=True)
     groups = models.ManyToManyField(Group, related_name='custom_user_groups')
     user_permissions = models.ManyToManyField(
