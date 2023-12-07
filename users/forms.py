@@ -1,7 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.contrib.auth.models import User
-from .models import Profile
+from .models import Profile, User
 from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import check_password
 
@@ -132,6 +131,8 @@ class UserLoginForm(forms.Form):
                     "El usuario con este correo electrónico no existe."
                 )
         return self.cleaned_data
+    class Meta:
+        model = User
 
 class ImageUploadForm(forms.Form):
     avatar = forms.ImageField(widget=forms.FileInput(
