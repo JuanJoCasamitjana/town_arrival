@@ -1,8 +1,15 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser, Group, Permission
 
 from django.apps import apps
 
+
+class User(AbstractUser, models.Model):
+    email = models.EmailField(unique=True)
+    groups = models.ManyToManyField(Group, related_name='custom_user_groups')
+    user_permissions = models.ManyToManyField(
+        Permission, related_name='custom_user_permissions'
+    )
 class Alquiler(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     alquilo = models.ForeignKey('app.Casa', on_delete=models.CASCADE)  # Referencia a la Casa alquilada
@@ -16,7 +23,7 @@ class Alquiler(models.Model):
     
     def __str__(self):
         return f"{self.user.username} - {self.alquilo.titulo}"
-    
+
 class Profile(models.Model):
     #Modelo de usuario basico de Django
     user = models.OneToOneField(User, on_delete=models.CASCADE)
