@@ -4,17 +4,19 @@
     <h1>Carrito de Compras</h1>
     
     <!-- Mostrar productos en el carrito -->
-    <ul>
-        {% for alquiler in productos_en_carrito %}
-            <li>
-                {{ alquiler.alquilo.titulo }} - Precio: ${{ alquiler.alquilo.precioPorDia }}
-                <a href="{% url 'eliminar_del_carrito' alquiler.id %}">Eliminar</a>
-            </li>
-        {% endfor %}
-    </ul>
-    
-    <!-- Mostrar el total del carrito -->
-    <p>Total: ${{ total_carrito }}</p>
+    <table class="table table-striped">
+            <tr>
+            {% for alquiler in productos_en_carrito %}
+                <td>{{ alquiler.alquilo.titulo }}</td>
+                <td>{{ alquiler.alquilo.precioPorDia }} €</td>
+                <td><a class="btn btn-secondary" href="{% url 'eliminar_del_carrito' alquiler.id %}">Eliminar</a></td>
+            {% endfor %}
+            </tr>
+            <tr class="font-weight-bold">
+                <td>Total</td>
+                <td>{{ total_carrito }} €</td>
+            </tr>
+    </table>
   
     <form method="post" action="{% url 'pagos' %}">
         {% csrf_token %}
