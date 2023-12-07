@@ -3,7 +3,6 @@ from django.urls import include, path
 
 from app import views
 from shoppingCart import views as v
-from pagos import views as pago
 from vistasAdministrador import views as ad
 
 urlpatterns = [
@@ -15,7 +14,7 @@ urlpatterns = [
     path('carrito/', v.carrito, name='carrito'),
     path('agregar_carrito/<int:casa_id>/', v.agregar_carrito, name='agregar_carrito'),
     path('eliminar_del_carrito/<int:producto_id>/', v.eliminar_del_carrito, name='eliminar_del_carrito'),      
-    path('pagos/', pago.pagos, name='pagos'),
+    path('pagos/', v.pagos, name='pagos'),
     path('ventasAdmin/', ad.vistaVentas, name='ventasAdmin'),
     path('gestionAdmin/', ad.vistaClientes, name='gestionAdmin'),
     path('info_casa/<int:casa_id>/', views.info_casa, name='info_casa'),
@@ -28,6 +27,8 @@ urlpatterns = [
     path('exito-formulario/', views.pagina_de_exito, name='pagina_de_exito'),
     path('inexistente/', views.pagina_inexistente, name='pagina_inexistente'),
     path('información/', views.quienes_somos, name='quienes_somos'),
+    path('payment_success', v.payment_success, name='payment_success'),
+    path('payment_failed/', v.payment_failed, name='payment_failed'),
 
 
 ]

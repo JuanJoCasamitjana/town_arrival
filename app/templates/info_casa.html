@@ -12,7 +12,8 @@
       <p class="card-text"><strong>Localidad:</strong> {{ casa.localidad }}</p>
       <p class="card-text"><strong>Dirección:</strong> {{ casa.direccion }}</p>
 
-      <form method="post" action="{% url 'agregar_carrito' casa.id %}">
+      <form method="post" class="form-group" action="{% url 'agregar_carrito' casa.id %}">
+        <h3>Alquilar</h3>
         {% csrf_token %}
         {{ alquiler_form.as_p }}
         <button type="submit" class="btn btn-primary">Agregar al Carrito</button>
@@ -24,20 +25,20 @@
 
     <a href="#" class="btn btn-primary">Contactar al Arrendador</a>
 
-        <!-- Sección de Comentarios -->
         <h3>Comentarios</h3>
-        <ul>
-            {% for comentario in comentarios %}
-                <li>{{ comentario.texto }} - Por: {{ comentario.usuario.username }}</li>
-                <!-- Muestra los comentarios existentes -->
-            {% endfor %}
-        </ul>
+        <table class="table table-striped">
+          <tr>
+              {% for comentario in comentarios %}
+                  <td>{{ comentario.texto }}</td>
+                  <td>Por: {{ comentario.usuario.username }}</td>
+              {% endfor %}
+          </tr>
+        </table>
         {% if not es_propietario %}
-        <!-- Formulario para dejar un comentario -->
-        <form method="post">
+        <form method="post" class="form-group">
             {% csrf_token %}
             {{ comentario_form.as_p }}
-            <button type="submit">Enviar Comentario</button>
+            <button type="submit" class="btn btn-primary">Enviar Comentario</button>
         </form>
         {% endif %}
 </div>

@@ -20,6 +20,10 @@
         {% csrf_token %}
         <button type="submit" class="btn btn-primary">Pago Contrarrembolso</button>
     </form>
+    {% if auth %}
+        {{paypal.render}}     
+    {% endif %}
+    
 </body>
 
 {% endblock %}
