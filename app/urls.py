@@ -6,8 +6,8 @@ from shoppingCart import views as v
 from vistasAdministrador import views as ad
 
 urlpatterns = [
-    path('busqueda/', views.busqueda, name='busqueda'),
-    path('',views.catalogo_casas,name="index"),
+    path('',views.busqueda,name="index"),
+    path('inicio',views.busqueda,name="inicio"),
     path('catalogo-casas/', views.catalogo_casas, name='catalogo_casas'),
     path('casa/<int:casa_id>/', views.info_casa, name='detalle_casa'),
     path('nueva-casa', views.crear_casa, name='crear_casa'),
@@ -18,6 +18,9 @@ urlpatterns = [
     path('ventasAdmin/', ad.vistaVentas, name='ventasAdmin'),
     path('gestionAdmin/', ad.vistaClientes, name='gestionAdmin'),
     path('info_casa/<int:casa_id>/', views.info_casa, name='info_casa'),
+    path('casa/<int:casa_id>/presentar_reclamacion/', views.presentar_reclamacion, name='presentar_reclamacion'),
+    path('mis-reclamaciones', views.mostrar_reclamaciones, name='mis-reclamaciones'),
+    path('reclamacion/<int:reclamacion_id>/', views.ver_detalle_reclamacion, name='ver_detalle_reclamacion'),
     path('contacto/', views.contacto, name='contacto'),
     path('formulario-contacto/', views.mostrar_formulario_contacto, name='mostrar_formulario_contacto'),
     path('error-formulario/', views.pagina_de_error, name='pagina_de_error'),
@@ -26,5 +29,6 @@ urlpatterns = [
     path('información/', views.quienes_somos, name='quienes_somos'),
     path('payment_success', v.payment_success, name='payment_success'),
     path('payment_failed/', v.payment_failed, name='payment_failed'),
+
 
 ]

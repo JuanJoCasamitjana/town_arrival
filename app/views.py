@@ -1,8 +1,10 @@
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Casa, Comentario
 from django.db.models import Q
 import requests
+from .models import Casa, Comentario, Reclamacion
+from .forms import ReclamacionForm
+from .forms import CasaForm, ImageUploadForm, ComentarioForm
 from .forms import CasaForm, ImageUploadForm, ComentarioForm, AlquilerForm
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
@@ -110,6 +112,38 @@ def upload_image_to_external_service(image_file):
 
     return None
 
+def presentar_reclamacion(request, casa_id):
+    casa = Casa.objects.get(pk=casa_id)
+    
+    if request.method == 'POST':
+        form = ReclamacionForm(request.POST)
+        if form.is_valid():
+            reclamacion = form.save(commit=False)
+            reclamacion.casa = casa
+            reclamacion.usuario = request.user
+            reclamacion.save()
+            return redirect('detalle_casa', casa_id=casa_id)
+    else:
+        form = ReclamacionForm()
+
+    return render(request, 'presentar_reclamacion.html', {'form': form, 'casa': casa})
+
+
+def mostrar_reclamaciones(request):
+    reclamaciones = Reclamacion.objects.filter(usuario=request.user)
+    return render(request, 'mostrar_reclamaciones.html', {'reclamaciones': reclamaciones})
+
+def ver_detalle_reclamacion(request, reclamacion_id):
+    reclamacion = get_object_or_404(Reclamacion, pk=reclamacion_id)
+    return render(request, 'detalle_reclamacion.html', {'reclamacion': reclamacion})
+
+
+def info_reclamacion(request, reclamacion_id):
+    reclamacion = get_object_or_404(Reclamacion, pk=reclamacion_id)
+
+    return render(request, 'detalle_reclamacion.html', {
+        'reclamacion': reclamacion,
+    })
 def mostrar_formulario_contacto(request):
     return render(request, 'contacto.html')
 
