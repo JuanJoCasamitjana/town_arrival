@@ -5,7 +5,7 @@ from django.urls import reverse
 import stripe
 from shoppingCart.models import Carrito
 from django.contrib import messages
-from users.models import Profile
+from users.models import Profile, User
 from app.models import Casa
 from app.models import Alquiler
 from datetime import datetime, timedelta
@@ -15,7 +15,9 @@ from paypal.standard.forms import PayPalPaymentsForm
 import uuid
 from django.conf import settings
 from app.forms import AlquilerForm
+from django.contrib.auth.decorators import login_required
 
+@login_required
 def carrito(request):
     auth =request.user.is_authenticated
     try:

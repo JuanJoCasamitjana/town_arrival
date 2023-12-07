@@ -1,8 +1,10 @@
 DOCKER:
 
-1 Tener instalado docker: https://www.docker.com/products/docker-desktop/
-2 paso: Construirlo -> docker build -t town_arrival .
-3 paso: Ejecutarlo -> docker run -p 8000:8000 town_arrival
+1. Tener instalado docker: https://www.docker.com/products/docker-desktop/
+2. paso: Construirlo -> 
+    ```docker build -t town_arrival```
+3. paso: Ejecutarlo -> 
+    ```docker run -p 8000:8000 town_arrival```
 
 Cada vez que estamos desarrollando y añadimos cosas nuevas hay que construir de nuevo el proyecto y volver a ejecutarlo.
 
