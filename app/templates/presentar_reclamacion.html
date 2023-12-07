@@ -1,0 +1,12 @@
+<!-- templates/presentar_reclamacion.html -->
+
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Presentar Reclamación para {{ casa.nombre }}</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Enviar Reclamación</button>
+  </form>
+{% endblock %}
