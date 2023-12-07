@@ -4,3 +4,4 @@ Pillow==10.1.0
 requests==2.31.0
 django-paypal==2.0
 paypal==1.2.5
+stripe = 2.31.0
