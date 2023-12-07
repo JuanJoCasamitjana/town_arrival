@@ -2,7 +2,7 @@ from django.shortcuts import redirect, render, get_object_or_404
 from django.urls import reverse
 from shoppingCart.models import Carrito
 from django.contrib import messages
-from users.models import Profile
+from users.models import Profile, User
 from app.models import Casa
 from app.models import Alquiler
 from datetime import datetime, timedelta
@@ -11,7 +11,9 @@ from paypal.standard.forms import PayPalPaymentsForm
 import uuid
 from django.conf import settings
 from app.forms import AlquilerForm
+from django.contrib.auth.decorators import login_required
 
+@login_required
 def carrito(request):
     auth =request.user.is_authenticated
     try:
@@ -19,7 +21,8 @@ def carrito(request):
             # Obtener el carrito del usuario o crear uno nuevo si no existe
             host = request.get_host()
             nombre = 'Alquiler'
-            carrito_usuario, created = Carrito.objects.get_or_create(user=request.user)
+            user = get_object_or_404(User, pk=request.user.pk)
+            carrito_usuario, created = Carrito.objects.get_or_create(user=user)
             productos_en_carrito = carrito_usuario.productos.all()
             total_carrito = carrito_usuario.total
             gestion=total_carrito<20
