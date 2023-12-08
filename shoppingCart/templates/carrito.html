@@ -6,14 +6,19 @@
     {% if cosas %}  
     <p> Si el total supera los 20€ no se aplicarán los gastos de gestión</p>
     <!-- Mostrar productos en el carrito -->
-    <ul>
+    <table class="table table-striped">
+        <tr>
         {% for alquiler in productos_en_carrito %}
-            <li>
-                {{ alquiler.alquilo.titulo }} - Precio: ${{ alquiler.alquilo.precioPorDia}} por cada dia
-                <a href="{% url 'eliminar_del_carrito' alquiler.id %}">Eliminar</a>
-            </li>
+            <td>{{ alquiler.alquilo.titulo }}</td>
+            <td>{{ alquiler.alquilo.precioPorDia }} €</td>
+            <td><a class="btn btn-secondary" href="{% url 'eliminar_del_carrito' alquiler.id %}">Eliminar</a></td>
         {% endfor %}
-    </ul>
+        </tr>
+        <tr class="font-weight-bold">
+            <td>Total</td>
+            <td>{{ total_carrito }} €</td>
+        </tr>
+    </table>
     {% if gestion %}
         <p>Añadido 10€ de gastos de gestion al no superar los 20€ en total</p>    
         <p>Precio original: ${{total_carrito}}
