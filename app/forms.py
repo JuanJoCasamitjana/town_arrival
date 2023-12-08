@@ -1,6 +1,6 @@
 # en tu archivo forms.py
 from django import forms
-from .models import Casa, Comentario, Reclamacion
+from .models import Casa, Categoria, Comentario, Reclamacion
 
 class CasaForm(forms.ModelForm):
 
@@ -86,4 +86,12 @@ class AlquilerForm(forms.Form):
             )
         )
     modoEntrega = forms.ChoiceField(choices = tipos)
+
+
+class CategoriasForm(forms.Form):
+    categorias = forms.ModelMultipleChoiceField(
+        queryset=Categoria.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        required=False
+    )
 

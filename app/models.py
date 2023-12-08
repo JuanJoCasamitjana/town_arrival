@@ -1,6 +1,13 @@
 from django.db import models
 from users.models import Profile, Alquiler, User
 
+
+class Categoria(models.Model):
+    nombre = models.CharField(max_length=250, unique=True)
+
+    def __str__(self) -> str:
+        return self.nombre
+
 # Create your models here.
 class Casa(models.Model):
     arrendador = models.ForeignKey(Profile, on_delete=models.CASCADE)
@@ -11,6 +18,7 @@ class Casa(models.Model):
     direccion = models.TextField(blank=False, max_length=100)
     precioPorDia = models.DecimalField(max_digits=10, decimal_places=2, default=10)
     ocupadas= models.ManyToManyField(Alquiler, blank=True)
+    categorias = models.ManyToManyField(Categoria)
 
     def __str__(self):
         return self.titulo

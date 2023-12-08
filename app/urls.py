@@ -8,6 +8,7 @@ from vistasAdministrador import views as ad
 urlpatterns = [
     path('',views.catalogo_casas,name="inicio"),
     path('busqueda',views.busqueda,name="busqueda"),
+    path('busqueda/<str:categoria>',views.por_categoria,name="por_categoria"),
     path('catalogo-casas/', views.catalogo_casas, name='catalogo_casas'),
     path('casa/<int:casa_id>/', views.info_casa, name='detalle_casa'),
     path('nueva-casa', views.crear_casa, name='crear_casa'),
@@ -18,6 +19,7 @@ urlpatterns = [
     path('ventasAdmin/', ad.vistaVentas, name='ventasAdmin'),
     path('gestionAdmin/', ad.vistaClientes, name='gestionAdmin'),
     path('info_casa/<int:casa_id>/', views.info_casa, name='info_casa'),
+    path('anadir-categoria/<int:id>/', views.anadir_categorias, name='anadir_categorias'),
     path('casa/<int:casa_id>/presentar_reclamacion/', views.presentar_reclamacion, name='presentar_reclamacion'),
     path('mis-reclamaciones', views.mostrar_reclamaciones, name='mis-reclamaciones'),
     path('reclamacion/<int:reclamacion_id>/', views.ver_detalle_reclamacion, name='ver_detalle_reclamacion'),
