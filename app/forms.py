@@ -32,10 +32,18 @@ class CasaForm(forms.ModelForm):
             'class':'form-control'
             })
     )
+    precioPorDia = forms.DecimalField(
+        label='',
+        widget=forms.NumberInput(attrs={
+            'placeholder': 'Precio por dia "00.00"',
+            'class':'form-control'
+        }
+        )
+    )
     class Meta:
         model = Casa
         exclude = ['arrendador', 'imagen']
-        fields = ['arrendador', 'titulo', 'descripcion', 'imagen', 'localidad', 'direccion']
+        fields = ['arrendador', 'titulo', 'descripcion','precioPorDia' , 'imagen', 'localidad', 'direccion']
 
 class ImageUploadForm(forms.Form):
     imagen = forms.ImageField()
@@ -95,3 +103,7 @@ class CategoriasForm(forms.Form):
         required=False
     )
 
+class CategoriaAdminForm(forms.ModelForm):
+    class Meta:
+        model = Categoria
+        fields = ['nombre']

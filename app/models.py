@@ -1,9 +1,15 @@
 from django.db import models
 from users.models import Profile, Alquiler, User
+from django.utils.text import slugify
 
 
 class Categoria(models.Model):
     nombre = models.CharField(max_length=250, unique=True)
+    url= models.SlugField(unique=True)
+
+    def save(self, *args, **kwargs):
+        self.url = slugify(self.nombre)
+        super().save(*args, **kwargs)
 
     def __str__(self) -> str:
         return self.nombre

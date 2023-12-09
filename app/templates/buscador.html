@@ -7,11 +7,16 @@
     <div class="">
         <div class="container pt-4">
 
-            <form class="form-inline" method="get" action="{% url 'inicio' %}">
-                <input name="query" class="form-control" type="text" value="{{ query }}" placeholder="Busca una casa">
+            <form class="form-inline" method="get" action="{{ action_url }}">
+                <input name="query" class="form-control mr-1" type="text" value="{{ query }}" placeholder="Busca una casa">
+                <input name="price" class="form-control mr-1" type="number" value="{{ price }}" placeholder="Precio máximo">
                 <button class ="btn btn-secondary">Search</button>
             </form>
-
+            <div class="d-flex mb-4 mt-4">
+              {% for categoria in categorias %}
+              <a href="{% url 'por_categoria' categoria=categoria.url %}" class="btn btn-warning mr-2 border border-dark">{{ categoria }}</a>
+              {% endfor %}
+            </div>
         </div>
         <div class="container-fluid pt-4">
           <div class="col-span-3">

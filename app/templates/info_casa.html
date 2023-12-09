@@ -14,6 +14,7 @@
 
       <form method="post" class="form-group" action="{% url 'agregar_carrito' casa.id %}">
         <h3>Alquilar</h3>
+        <h4 class="bg-success w-50 rounded-sm border border-dark">Precio por dia {{ casa.precioPorDia }} €</h4>
         {% csrf_token %}
         {{ alquiler_form.as_p }}
         <button type="submit" class="btn btn-primary">Agregar al Carrito</button>
@@ -26,7 +27,7 @@
     {% endif %}
     <div class="d-flex mb-4">
       {% for categoria in casa.categorias.all %}
-      <a href="{% url 'por_categoria' categoria=categoria.nombre %}" class="btn btn-warning mr-2">{{ categoria }}</a>
+      <a href="{% url 'por_categoria' categoria=categoria.url %}" class="btn btn-warning mr-2">{{ categoria }}</a>
       {% endfor %}
     </div>
     <a href="#" class="btn btn-primary">Contactar al Arrendador</a>
