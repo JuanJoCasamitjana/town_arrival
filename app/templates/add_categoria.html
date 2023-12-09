@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="d-flex justify-content-center">
+    <div class="align-items-center">
+      <h2 class="text-center">Añadir categorias a casa</h2>
+      <form class="d-flex flex-column align-items-center align-middle form-group" method="post" action="{% url 'anadir_categorias' id=casa.id %}">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button class="btn-lg btn-outline-dark" type="submit">Añadir</button>
+      </form>
+    </div>
+  </div>
+{% endblock %}

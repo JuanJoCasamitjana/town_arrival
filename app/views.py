@@ -1,9 +1,10 @@
+from decimal import Decimal
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Q
 import requests
-from .models import Casa, Comentario, Reclamacion
-from .forms import ReclamacionForm
+from .models import Casa, Categoria, Comentario, Reclamacion
+from .forms import CategoriasForm, ReclamacionForm
 from .forms import CasaForm, ImageUploadForm, ComentarioForm
 from .forms import CasaForm, ImageUploadForm, ComentarioForm, AlquilerForm
 from django.contrib.auth.decorators import login_required
@@ -11,6 +12,7 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.http import HttpResponseRedirect
 from django.urls import reverse
+import requests
 
 
 
@@ -18,14 +20,23 @@ API_KEY = '78a7e53f033d954800e7f90ff1fcfca2'
 
 def busqueda(request):
     query = request.GET.get('query', '')
+    price = request.GET.get('price', '')
     casas = Casa.objects.all()
-
+    action_url = "/busqueda"
+    categorias = Categoria.objects.all()
     if query:
         casas = casas.filter(Q(titulo__icontains=query) | Q(descripcion__icontains=query) | Q(localidad__icontains=query))
+    if price:
+        price = Decimal(price)
+        print(price)
+        casas = casas.filter(Q(precioPorDia__lte=price))
 
     return render(request, 'buscador.html', {
         'casas': casas,
         'query':query,
+        'price':price,
+        'categorias':categorias,
+        'action_url':action_url
         })
 # Create your views here.
 def index(request):
@@ -88,7 +99,20 @@ def crear_casa(request):
 
     return render(request, 'crear_casa.html', {'form': form, 'image_form': image_form})
 
-import requests
+def anadir_categorias(request, id):
+    casa = Casa.objects.get(pk=id)
+    if request.method == 'POST':
+        form = CategoriasForm(request.POST)
+        if form.is_valid():
+            selected_objects = form.cleaned_data['categorias']
+            casa.categorias.clear()
+            casa.categorias.add(*selected_objects)
+            casa.save()
+            return redirect('detalle_casa', casa_id=casa.id)
+    else:
+        form = CategoriasForm()
+        return render(request, 'add_categoria.html', {'form':form, 'casa':casa})
+
 
 def upload_image_to_external_service(image_file):
     try:
@@ -110,7 +134,7 @@ def upload_image_to_external_service(image_file):
     except Exception as e:
         print(f"Error al cargar la imagen: {e}")
 
-    return None
+    return "https://i.ibb.co/GtpDyr5/will-li-kk6wsx-VBuy-A-unsplash.jpg"
 
 def presentar_reclamacion(request, casa_id):
     casa = Casa.objects.get(pk=casa_id)
@@ -186,3 +210,25 @@ def pagina_inexistente(request):
 
 def quienes_somos(request):
     return render(request, 'quienes_somos.html')
+
+def por_categoria(request, categoria):
+    query = request.GET.get('query', '')
+    price = request.GET.get('price', '')
+    print(price)
+    cat = Categoria.objects.get(url=categoria)
+    action_url = f"/busqueda/{cat.url}"
+    casas = cat.casa_set.all()
+
+    if query:
+        casas = casas.filter(Q(titulo__icontains=query) | Q(descripcion__icontains=query) | Q(localidad__icontains=query))
+    if price:
+        price = Decimal(price)
+        print(price)
+        casas = casas.filter(Q(precioPorDia__lte=price))
+    return render(request, 'buscador.html', {
+        'casas': casas,
+        'query':query,
+        'price':price,
+        'action_url':action_url
+        })
+
