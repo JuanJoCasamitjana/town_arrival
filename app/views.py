@@ -13,6 +13,7 @@ from django.conf import settings
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 import requests
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 
 
@@ -28,22 +29,39 @@ def busqueda(request):
         casas = casas.filter(Q(titulo__icontains=query) | Q(descripcion__icontains=query) | Q(localidad__icontains=query))
     if price:
         price = Decimal(price)
-        print(price)
         casas = casas.filter(Q(precioPorDia__lte=price))
-
+    items_por_pagina = 30
+    paginator = Paginator(casas, items_por_pagina)
+    page = request.GET.get('page')
+    try:
+        casas = paginator.page(page)
+    except PageNotAnInteger:
+        casas = paginator.page(1)
+    except EmptyPage:
+        casas = paginator.page(paginator.num_pages)
     return render(request, 'buscador.html', {
         'casas': casas,
-        'query':query,
-        'price':price,
-        'categorias':categorias,
-        'action_url':action_url
-        })
+        'query': query,
+        'price': price,
+        'categorias': categorias,
+        'action_url': action_url
+    })
 # Create your views here.
 def index(request):
     return HttpResponse("Hello, world. You're at the town_arrival index.")
 
 def catalogo_casas(request):
     casas = Casa.objects.all()
+    items_por_pagina = 30
+    paginator = Paginator(casas, items_por_pagina)
+    page = request.GET.get('page')
+    try:
+        casas = paginator.page(page)
+    except PageNotAnInteger:
+        casas = paginator.page(1)
+    except EmptyPage:
+        casas = paginator.page(paginator.num_pages)
+
     return render(request, 'catalogo_casas.html', {'casas': casas})
 
 def info_casa(request, casa_id):
@@ -214,21 +232,28 @@ def quienes_somos(request):
 def por_categoria(request, categoria):
     query = request.GET.get('query', '')
     price = request.GET.get('price', '')
-    print(price)
     cat = Categoria.objects.get(url=categoria)
     action_url = f"/busqueda/{cat.url}"
     casas = cat.casa_set.all()
-
     if query:
         casas = casas.filter(Q(titulo__icontains=query) | Q(descripcion__icontains=query) | Q(localidad__icontains=query))
     if price:
         price = Decimal(price)
-        print(price)
         casas = casas.filter(Q(precioPorDia__lte=price))
+    items_por_pagina = 30
+    paginator = Paginator(casas, items_por_pagina)
+    page = request.GET.get('page')
+
+    try:
+        casas = paginator.page(page)
+    except PageNotAnInteger:
+        casas = paginator.page(1)
+    except EmptyPage:
+        casas = paginator.page(paginator.num_pages)
     return render(request, 'buscador.html', {
         'casas': casas,
-        'query':query,
-        'price':price,
-        'action_url':action_url
-        })
+        'query': query,
+        'price': price,
+        'action_url': action_url
+    })
 
