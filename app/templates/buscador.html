@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block title %}Casas{% endblock  %}
+
+{% block content %}
+
+    <div class="">
+        <div class="container pt-4">
+
+            <form class="form-inline" method="get" action="{{ action_url }}">
+                <input name="query" class="form-control mr-1" type="text" value="{{ query }}" placeholder="Busca una casa">
+                <input name="price" class="form-control mr-1" type="number" value="{{ price }}" placeholder="Precio máximo">
+                <button class ="btn btn-secondary">Search</button>
+            </form>
+            <div class="d-flex mb-4 mt-4">
+              {% for categoria in categorias %}
+              <a href="{% url 'por_categoria' categoria=categoria.url %}" class="btn btn-warning mr-2 border border-dark">{{ categoria }}</a>
+              {% endfor %}
+            </div>
+        </div>
+        <div class="container-fluid pt-4">
+          <div class="col-span-3">
+              <div class="container">
+                  <div class="row">
+                    {% for casa in casas %}
+                      <div class="col-md-4 mb-4">
+                        <div class="card align-items-center">
+                          <a href="{% url 'detalle_casa' casa_id=casa.id %}">
+                            <img src="{{ casa.imagen }}" class="card-img-top img-thumbnail" style="object-fit: cover; max-width: 15rem; max-height: 15rem;" alt="{{ casa.titulo }}">
+                            <div class="card-body">
+                              <h5 class="card-title text-center">{{ casa.titulo }}</h5>
+                            </div>
+                          </a>
+                        </div>
+                      </div>
+                    {% endfor %}
+                  </div>
+                </div>
+          </div>
+        </div>      
+    </div>
+    <div class="container mt-4">
+      <div class="row">
+        <div class="col">
+          <ul class="pagination justify-content-center">
+            {% if casas.has_previous %}
+              <li class="page-item"><a class="page-link" href="?page=1">&laquo;&laquo;</a></li>
+              <li class="page-item"><a class="page-link" href="?page={{ casas.previous_page_number }}">Anterior</a></li>
+            {% endif %}
+            
+            {% for i in casas.paginator.page_range %}
+              {% if casas.number == i %}
+                <li class="page-item active"><span class="page-link">{{ i }}</span></li>
+              {% else %}
+                <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+              {% endif %}
+            {% endfor %}
+            
+            {% if casas.has_next %}
+              <li class="page-item"><a class="page-link" href="?page={{ casas.next_page_number }}">Siguiente</a></li>
+              <li class="page-item"><a class="page-link" href="?page={{ casas.paginator.num_pages }}">&raquo;&raquo;</a></li>
+            {% endif %}
+          </ul>
+        </div>
+      </div>
+    </div>
+{% endblock content %}
+
+

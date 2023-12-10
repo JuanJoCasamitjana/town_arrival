@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-center">
+  <div class="align-items-center">
+    <h2 class="text-center">Contacta con nosotros</h2>
+      
+    <form class="d-flex flex-column align-items-center align-middle form-group" method="post" action="{% url 'contacto' %}">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label for="email" class="form-label">Tu email:</label>
+          <input type="email" class="form-control" id="email" name="email" required>
+        </div>
+        <div class="mb-3">
+          <label for="motivo" class="form-label">Motivo de contacto:</label>
+          <input type="text" class="form-control" id="motivo" name="motivo" maxlength="255" required>
+          <small class="form-text text-muted">El motivo debe tener un máximo de 255 caracteres.</small>
+        </div>
+        <div class="mb-3">
+          <label for="mensaje" class="form-label">Mensaje:</label>
+          <textarea class="form-control" id="mensaje" name="mensaje" rows="5" required></textarea>
+        </div>
+        <button class="btn-lg btn-outline-dark" type="submit">Enviar</button>
+      </form>
+  </div>
+</div>
+{% endblock %}

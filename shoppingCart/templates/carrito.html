@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block content %}
+<body>
+    
+    <h1>Carrito de Compras</h1>
+    {% if cosas %}  
+    <p> Si el total supera los 20€ no se aplicarán los gastos de gestión</p>
+    <!-- Mostrar productos en el carrito -->
+    <table class="table table-striped">
+        <tr>
+        {% for alquiler in productos_en_carrito %}
+            <td>{{ alquiler.alquilo.titulo }}</td>
+            <td>{{ alquiler.alquilo.precioPorDia }} €</td>
+            <td><a class="btn btn-secondary" href="{% url 'eliminar_del_carrito' alquiler.id %}">Eliminar</a></td>
+        {% endfor %}
+        </tr>
+        <tr class="font-weight-bold">
+            <td>Total</td>
+            <td>{{ total_carrito }} €</td>
+        </tr>
+    </table>
+    {% if gestion %}
+        <p>Añadido 10€ de gastos de gestion al no superar los 20€ en total</p>    
+        <p>Precio original: ${{total_carrito}}
+    {% endif %}
+    <!-- Mostrar el total del carrito -->
+    <p>Total: ${{ total_post_gestion }}</p>
+            
+    <form method="post" action="{% url 'pagos' %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary">Pago Contrarrembolso</button>
+    </form>
+    <form method="post" action="{% url 'carrito' %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary">Pago con tarjeta</button>
+    </form>
+    {% else %}
+    <p>Carrito vacío</p>
+    {% endif %}
+    
+</body>
+
+{% endblock %}
