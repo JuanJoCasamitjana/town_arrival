@@ -5,8 +5,7 @@ from django.db.models import Q
 import requests
 from .models import Casa, Categoria, Comentario, Reclamacion
 from .forms import CategoriasForm, ReclamacionForm
-from .forms import CasaForm, ImageUploadForm, ComentarioForm
-from .forms import CasaForm, ImageUploadForm, ComentarioForm, AlquilerForm
+from .forms import CasaForm, ImageUploadForm, ComentarioForm, AlquilerForm, OptionalImageUploadForm
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
 from django.conf import settings
@@ -67,14 +66,12 @@ def catalogo_casas(request):
 def info_casa(request, casa_id):
     casa = get_object_or_404(Casa, pk=casa_id)
 
-    user = request.user.profile
-    is_owner = user == casa.arrendador
 
     es_propietario = False
     form_alquiler = AlquilerForm()
     if request.user.is_authenticated and casa.arrendador == request.user.profile:
         es_propietario = True
-
+    is_owner = es_propietario
     comentarios = Comentario.objects.filter(casa=casa)
 
     if request.method == 'POST' and not es_propietario:
@@ -272,5 +269,33 @@ def delete_casa(request, casa_id):
     if is_owner:
         Casa.delete(casa)
     return redirect('catalogo_casas')
+
+def editar_casa(request, casa_id):
+    casa = get_object_or_404(Casa, pk=casa_id)
+    user = request.user.profile
+    is_owner = user == casa.arrendador
+    if request.method == 'POST':
+        if is_owner:
+            form = CasaForm(request.POST, instance=casa)
+            image_form = OptionalImageUploadForm(request.POST, request.FILES)
+
+            if form.is_valid() and image_form.is_valid():
+                casa = form.save(commit=False)
+                image_file = image_form.cleaned_data['imagen']
+                if image_file:
+                    image_url = upload_image_to_external_service(image_file)
+                    casa.imagen = image_url
+                casa.save()
+
+                return redirect('detalle_casa', casa_id=casa.id)
+        else:
+            # Manejar el caso en que el usuario no sea el propietario
+            # Puedes redirigir a una página de error, mostrar un mensaje, etc.
+            pass
+    else:
+        form = CasaForm(instance=casa)
+        image_form = OptionalImageUploadForm()
+
+    return render(request, 'editar_casa.html', {'form': form, 'image_form': image_form, 'casa': casa})
 
 

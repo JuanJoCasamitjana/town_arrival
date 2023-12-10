@@ -11,19 +11,19 @@
       <p class="card-text">{{ casa.descripcion }}</p>
       <p class="card-text"><strong>Localidad:</strong> {{ casa.localidad }}</p>
       <p class="card-text"><strong>Dirección:</strong> {{ casa.direccion }}</p>
-
-
-        <!-- Otros detalles o enlaces aquí si es necesario -->
-
-        <a href="#" class="btn btn-primary">Contactar al Arrendador</a>
-        {% if is_owner %}
-        <a href="{% url 'delete_casa' casa_id=casa.id%}" class="btn btn-primary">Borrar casa</a>
-        {% endif %}
+      <div class="d-flex mb-4">
+        {% for categoria in casa.categorias.all %}
+        <a href="{% url 'por_categoria' categoria=categoria.url %}" class="btn btn-warning mr-2">{{ categoria }}</a>
+        {% endfor %}
       </div>
-    </article>
-  </div>
-{% endblock %}
 
+        <p href="#" class="border border-dark rounded-sm w-50">Contactar al Arrendador: {{casa.arrendador.user.email}}</p>
+        {% if is_owner %}
+        <div class="d-flex">
+          <a href="{% url 'delete_casa' casa_id=casa.id%}" class="btn btn-danger mr-4">Borrar casa</a>
+          <a href="{% url 'editar_casa' casa_id=casa.id%}" class="btn btn-warning border border-danger">Editar casa</a>
+        </div>
+        {% endif %}
       <form method="post" class="form-group" action="{% url 'agregar_carrito' casa.id %}">
         <h3>Alquilar</h3>
         <h4 class="bg-success w-50 rounded-sm border border-dark">Precio por dia {{ casa.precioPorDia }} €</h4>
@@ -37,12 +37,6 @@
     {% if es_propietario %}
         <a href="{% url 'anadir_categorias' id=casa.id %}" class="btn btn-secondary mt-4 mb-4">Añadir categorias</a>
     {% endif %}
-    <div class="d-flex mb-4">
-      {% for categoria in casa.categorias.all %}
-      <a href="{% url 'por_categoria' categoria=categoria.url %}" class="btn btn-warning mr-2">{{ categoria }}</a>
-      {% endfor %}
-    </div>
-    <a href="#" class="btn btn-primary">Contactar al Arrendador</a>
         <h3>Comentarios</h3>
         <table class="table table-striped">
           <tr>

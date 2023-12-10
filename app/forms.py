@@ -107,3 +107,6 @@ class CategoriaAdminForm(forms.ModelForm):
     class Meta:
         model = Categoria
         fields = ['nombre']
+
+class OptionalImageUploadForm(forms.Form):
+    imagen = forms.ImageField(required=False)
