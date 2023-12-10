@@ -54,13 +54,19 @@ def carrito(request):
                 )
                 return redirect(checkout_session.url, code=303)
         else:
+            productos_en_carrito = request.session.get('productos_en_carrito')
+            total_carrito = request.session.get('total_carrito')
+            '''Aqui abria que continuar con el carrito anonimo y pago'''
+    except Carrito.DoesNotExist:
+        if auth:
+            carrito_usuario = Carrito.objects.create(user=request.user)
             productos_en_carrito = []
             total_carrito = 0
-    except Carrito.DoesNotExist:
-        # Si el carrito no existe para el usuario, se crea uno nuevo
-        carrito_usuario = Carrito.objects.create(user=request.user)
-        productos_en_carrito = []
-        total_carrito = 0
+        else:
+            productos_en_carrito = []
+            total_carrito = 0
+            request.session['productos_en_carrito'] = productos_en_carrito
+            request.session['total_carrito'] = total_carrito
 
     return render(request, 'carrito.html', {
         'productos_en_carrito': productos_en_carrito,
@@ -120,7 +126,50 @@ def agregar_carrito(request, casa_id):
             print("Producto eliminado, redireccionando a la página de detalle de la casa")
             return redirect('detalle_casa', casa_id=casa_id)
         else:
-            messages.error(request, "Debes iniciar sesión para agregar al carrito.")
+            casa = get_object_or_404(Casa, pk=casa_id)
+            usuario = request.user
+            form_alquiler = AlquilerForm(request.POST)
+            if form_alquiler.is_valid():
+                fecha_inicio = form_alquiler.cleaned_data['fecha_inicio']
+                fecha_final = form_alquiler.cleaned_data['fecha_fin']
+                fecha_inicio = datetime.combine(fecha_inicio, datetime.min.time())
+                fecha_final = datetime.combine(fecha_final, datetime.max.time())
+                alquiler_existente = Alquiler.objects.filter(
+                    Q(alquilo=casa) &(
+                    Q(FechaInicio__lte=fecha_inicio, FechaFinal__gte=fecha_inicio) |
+                    Q(FechaInicio__lte=fecha_final, FechaFinal__gte=fecha_final) |
+                    Q(FechaInicio__gte=fecha_inicio, FechaFinal__lte=fecha_final))).exists()
+            
+                if alquiler_existente:
+                    messages.error(request, f"Ya tienes un alquiler activo para esta casa.")
+                    print("tontito borra la abse de datos")
+                    return redirect('info_casa', casa_id=casa_id)
+                alquiler = Alquiler(
+                    user=usuario,
+                    alquilo=casa,
+                    FechaInicio=fecha_inicio,
+                    FechaFinal=fecha_final
+                )
+                productos_en_carrito = [alquiler,]
+                pec_session = request.session.get('productos_en_carrito')
+                if pec_session:
+                    if alquiler not in pec_session:
+                        productos_en_carrito.extend(pec_session)
+                        request.session['productos_en_carrito'] = productos_en_carrito
+                        dias= (alquiler.FechaFinal - alquiler.FechaInicio).days
+                        total = request.session.get('total_carrito')
+                        if total:
+                            total += casa.precioPorDia * dias
+                        else:
+                            total = casa.precioPorDia * dias
+                        request.session['total_carrito'] = total
+                        messages.success(request, f"{casa.titulo} ha sido agregada al carrito.")
+                        print("Producto agregado correctamente al carrito")
+                    else:
+                        messages.info(request, f"{casa.titulo} ya está en el carrito.")
+                        print("El producto ya está en el carrito")
+                    print("Producto eliminado, redireccionando a la página de detalle de la casa")
+                    return redirect('detalle_casa', casa_id=casa_id)
 
     return redirect('info_casa', casa_id=casa_id)
 
