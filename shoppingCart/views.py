@@ -1,3 +1,5 @@
+from decimal import Decimal
+import re
 import time
 from django.http import HttpResponse
 from django.shortcuts import redirect, render, get_object_or_404
@@ -16,9 +18,12 @@ from django.conf import settings
 from app.forms import AlquilerForm
 from django.contrib.auth.decorators import login_required
 
-@login_required
 def carrito(request):
     auth =request.user.is_authenticated
+    gestion=request.session.get('gestion')
+    total_post_gestion=request.session.get('total_post_gestion')
+    cosas=request.session.get('cosas')
+
     try:
         if auth:
             # Obtener el carrito del usuario o crear uno nuevo si no existe
@@ -54,14 +59,47 @@ def carrito(request):
                 )
                 return redirect(checkout_session.url, code=303)
         else:
-            productos_en_carrito = []
-            total_carrito = 0
+            productos_en_carrito = request.session.get('productos_en_carrito')
+            total_carrito = request.session.get('total_carrito')
+            if not productos_en_carrito:
+                productos_en_carrito = []
+            if not total_carrito:
+                 total_carrito = 0
+            productos_en_carrito = productos_en_carrito
+            gestion=Decimal(total_carrito)<20
+            if gestion:
+                total_post_gestion= Decimal(total_carrito) + 10
+            else:
+                total_post_gestion = Decimal(total_carrito)
+            cosas = len(productos_en_carrito) >=1 
+            stripe.api_key = settings.STRIPE_SECRET_KEY_TEST
+            if request.method == 'POST':
+                checkout_session = stripe.checkout.Session.create(
+                    payment_method_types = ['card'],
+                    line_items = [
+                        {
+                            'price_data': {
+                                'currency': 'eur',
+                                'product_data': {
+                                'name': 'Alquiler_de_casas',
+                                },
+                                'unit_amount': int(total_post_gestion*100)
+                                },
+                            'quantity': 1,
+                        },
+                    ],
+                    mode = 'payment',
+                    customer_creation = 'always',
+                    success_url = settings.REDIRECT_DOMAIN + '/payment_successful?session_id={CHECKOUT_SESSION_ID}',
+                    cancel_url = settings.REDIRECT_DOMAIN + '/payment_cancelled',
+                )
+                return redirect(checkout_session.url, code=303)
     except Carrito.DoesNotExist:
         # Si el carrito no existe para el usuario, se crea uno nuevo
         carrito_usuario = Carrito.objects.create(user=request.user)
         productos_en_carrito = []
         total_carrito = 0
-
+    request.session['total_carrito'] = total_carrito.__str__()
     return render(request, 'carrito.html', {
         'productos_en_carrito': productos_en_carrito,
         'total_carrito': total_carrito,
@@ -120,7 +158,55 @@ def agregar_carrito(request, casa_id):
             print("Producto eliminado, redireccionando a la página de detalle de la casa")
             return redirect('detalle_casa', casa_id=casa_id)
         else:
-            messages.error(request, "Debes iniciar sesión para agregar al carrito.")
+            casa = get_object_or_404(Casa, pk=casa_id)
+            form_alquiler = AlquilerForm(request.POST)
+            if form_alquiler.is_valid():
+                fecha_inicio = form_alquiler.cleaned_data['fecha_inicio']
+                fecha_final = form_alquiler.cleaned_data['fecha_fin']
+                fecha_inicio = datetime.combine(fecha_inicio, datetime.min.time())
+                fecha_final = datetime.combine(fecha_final, datetime.max.time())
+            
+            # Verificar si el usuario ya tiene un alquiler activo para esta casa
+                alquiler_existente = Alquiler.objects.filter(
+                    Q(alquilo=casa) &(
+                    Q(FechaInicio__lte=fecha_inicio, FechaFinal__gte=fecha_inicio) |
+                    Q(FechaInicio__lte=fecha_final, FechaFinal__gte=fecha_final) |
+                    Q(FechaInicio__gte=fecha_inicio, FechaFinal__lte=fecha_final))).exists()
+            
+                if alquiler_existente:
+                    messages.error(request, f"Ya tienes un alquiler activo para esta casa.")
+                    print("tontito borra la abse de datos")
+                    return redirect('info_casa', casa_id=casa_id)
+            
+            
+
+            productos_en_carrito = request.session.get('productos_en_carrito')
+            if not productos_en_carrito:
+                 productos_en_carrito = []
+            alquiler = {
+                'id':len(productos_en_carrito),
+                'alquilo':casa.id,
+                'FechaInicio':fecha_inicio,
+                'FechaFinal':fecha_final,
+                'modos_entrega':''
+            }
+            if alquiler not in productos_en_carrito:
+                productos_en_carrito.append(alquiler)
+                request.session['productos_en_carrito'] = productos_en_carrito
+                dias= (alquiler['FechaFinal'] - alquiler['FechaInicio']).days
+                alquiler['FechaFinal']=alquiler['FechaFinal'].isoformat()
+                alquiler['FechaInicio']=alquiler['FechaInicio'].isoformat()
+                # Actualizar el total del carrito después de agregar el producto
+                total_carrito = Decimal(request.session.get('total_carrito'))
+                total_carrito += casa.precioPorDia * dias
+                request.session['total_carrito'] = total_carrito.__str__()
+                messages.success(request, f"{casa.titulo} ha sido agregada al carrito.")
+                print("Producto agregado correctamente al carrito")
+            else:
+                messages.info(request, f"{casa.titulo} ya está en el carrito.")
+                print("El producto ya está en el carrito")
+            print("Producto eliminado, redireccionando a la página de detalle de la casa")
+            return redirect('detalle_casa', casa_id=casa_id)
 
     return redirect('info_casa', casa_id=casa_id)
 
