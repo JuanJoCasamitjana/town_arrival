@@ -12,6 +12,18 @@
       <p class="card-text"><strong>Localidad:</strong> {{ casa.localidad }}</p>
       <p class="card-text"><strong>Dirección:</strong> {{ casa.direccion }}</p>
 
+
+        <!-- Otros detalles o enlaces aquí si es necesario -->
+
+        <a href="#" class="btn btn-primary">Contactar al Arrendador</a>
+        {% if is_owner %}
+        <a href="{% url 'delete_casa' casa_id=casa.id%}" class="btn btn-primary">Borrar casa</a>
+        {% endif %}
+      </div>
+    </article>
+  </div>
+{% endblock %}
+
       <form method="post" class="form-group" action="{% url 'agregar_carrito' casa.id %}">
         <h3>Alquilar</h3>
         <h4 class="bg-success w-50 rounded-sm border border-dark">Precio por dia {{ casa.precioPorDia }} €</h4>

@@ -66,6 +66,10 @@ def catalogo_casas(request):
 
 def info_casa(request, casa_id):
     casa = get_object_or_404(Casa, pk=casa_id)
+
+    user = request.user.profile
+    is_owner = user == casa.arrendador
+
     es_propietario = False
     form_alquiler = AlquilerForm()
     if request.user.is_authenticated and casa.arrendador == request.user.profile:
@@ -90,6 +94,7 @@ def info_casa(request, casa_id):
         'comentarios': comentarios,
         'comentario_form': comentario_form,
         'alquiler_form': form_alquiler,
+        'is_owner':is_owner
     })
 
 @login_required
@@ -256,4 +261,16 @@ def por_categoria(request, categoria):
         'price': price,
         'action_url': action_url
     })
+
+
+    return None
+
+def delete_casa(request, casa_id):
+    casa = get_object_or_404(Casa, pk=casa_id)
+    user = request.user.profile
+    is_owner = user == casa.arrendador
+    if is_owner:
+        Casa.delete(casa)
+    return redirect('catalogo_casas')
+
 
