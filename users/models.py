@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from django.db import models
 from django.contrib.auth.models import AbstractUser, Group, Permission
 
@@ -11,7 +12,7 @@ class User(AbstractUser):
         Permission, related_name='custom_user_permissions'
     )
 class Alquiler(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     alquilo = models.ForeignKey('app.Casa', on_delete=models.CASCADE)  # Referencia a la Casa alquilada
     FechaInicio = models.DateField()
     FechaFinal = models.DateField()
@@ -40,6 +41,4 @@ class Profile(models.Model):
         return self.user.username
     
 
-
-    
 
