@@ -24,7 +24,7 @@
         <p>Precio original: ${{total_carrito}}
     {% endif %}
     <!-- Mostrar el total del carrito -->
-    <p>Total: ${{ total_post_gestion }}</p>
+    <p>Total: €{{ total_post_gestion }}</p>
             
     <form method="post" action="{% url 'pagos' %}">
         {% csrf_token %}
