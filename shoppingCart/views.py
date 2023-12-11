@@ -15,6 +15,7 @@ import uuid
 from django.conf import settings
 from app.forms import AlquilerForm
 from django.contrib.auth.decorators import login_required
+from django.db.models import F
 
 @login_required
 def carrito(request):
@@ -62,16 +63,24 @@ def carrito(request):
         productos_en_carrito = []
         total_carrito = 0
 
+        # Crear una lista de diccionarios con información adicional para cada alquiler en el carrito
+    alquileres_con_info = []
+    for alquiler in productos_en_carrito:
+        dias_alquiler = (alquiler.FechaFinal - alquiler.FechaInicio).days
+        alquiler_info = {
+            'alquiler': alquiler,
+            'dias_alquiler': dias_alquiler,
+        }
+        alquileres_con_info.append(alquiler_info)
+
     return render(request, 'carrito.html', {
-        'productos_en_carrito': productos_en_carrito,
+        'productos_en_carrito': alquileres_con_info,
         'total_carrito': total_carrito,
         'auth' : auth,
         'gestion': gestion,
         'total_post_gestion': total_post_gestion,
         'cosas': cosas,
     })
-
-
 
 def agregar_carrito(request, casa_id):
     if request.method == 'POST':
@@ -124,29 +133,47 @@ def agregar_carrito(request, casa_id):
 
     return redirect('info_casa', casa_id=casa_id)
 
+def actualizar_dias_alquiler(request, producto_id):
+    if request.method == 'POST' and request.user.is_authenticated:
+        nuevos_dias = int(request.POST.get('nuevos_dias'))
+        alquiler = get_object_or_404(Alquiler, pk=producto_id)
+
+        # Guardar el precio actual del alquiler antes de actualizar los días
+        precio_alquiler_anterior = alquiler.alquilo.precioPorDia * (alquiler.FechaFinal - alquiler.FechaInicio).days
+
+        # Actualizar la duración del alquiler
+        alquiler.FechaFinal = alquiler.FechaInicio + timedelta(days=nuevos_dias)
+        alquiler.save()
+
+        # Calcular el nuevo precio del alquiler
+        precio_alquiler_nuevo = alquiler.alquilo.precioPorDia * nuevos_dias
+
+        # Actualizar el precio del alquiler en el carrito
+        carrito_usuario = Carrito.objects.get(user=request.user)
+        carrito_usuario.total = F('total') - precio_alquiler_anterior + precio_alquiler_nuevo
+        carrito_usuario.save()
+
+    return redirect('carrito')
+
 def eliminar_del_carrito(request, producto_id):
     if request.user.is_authenticated:
         carrito_usuario = Carrito.objects.get(user=request.user)
-        
         alquiler = get_object_or_404(Alquiler, pk=producto_id)
         
         carrito_usuario.productos.remove(alquiler)
 
-        print(f"Producto eliminado: {alquiler.alquilo.titulo}")  # Mensaje de depuración
-        print(f"Total antes de la resta: {carrito_usuario.total}")  # Mensaje de depuración
-        dias= (alquiler.FechaFinal - alquiler.FechaInicio).days
-        carrito_usuario.total -= alquiler.alquilo.precioPorDia * dias  # Restar el precio del producto eliminado
-        if carrito_usuario.total <= 0 :
+        dias = (alquiler.FechaFinal - alquiler.FechaInicio).days
+        carrito_usuario.total -= alquiler.alquilo.precioPorDia * dias
+
+        if carrito_usuario.total <= 0:
             carrito_usuario.total = 0
+
         carrito_usuario.save()
         alquiler.delete()
-
-        print(f"Total después de la resta: {carrito_usuario.total}")  # Mensaje de depuración
 
         messages.success(request, f"{alquiler.alquilo.titulo} ha sido eliminado del carrito.")
     else:
         messages.error(request, "Debes iniciar sesión para eliminar productos del carrito.")
-
     return redirect('carrito')
 
 def pagos(request):

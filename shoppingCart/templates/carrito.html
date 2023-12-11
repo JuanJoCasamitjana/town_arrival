@@ -8,10 +8,19 @@
     <!-- Mostrar productos en el carrito -->
     <table class="table table-striped">
         <tr>
-        {% for alquiler in productos_en_carrito %}
-            <td>{{ alquiler.alquilo.titulo }}</td>
-            <td>{{ alquiler.alquilo.precioPorDia }} €</td>
-            <td><a class="btn btn-secondary" href="{% url 'eliminar_del_carrito' alquiler.id %}">Eliminar</a></td>
+            {% for alquiler_info in productos_en_carrito %}
+            <td>{{ alquiler_info.alquiler.alquilo.titulo }}</td>
+            <td>{{ alquiler_info.alquiler.alquilo.precioPorDia }} € por día</td>
+            <td>{{ alquiler_info.alquiler.FechaInicio }}</td>
+            <td>{{ alquiler_info.alquiler.FechaFinal }}</td>
+            <td>
+                <form method="post" action="{% url 'actualizar_dias_alquiler' alquiler_info.alquiler.id %}">
+                    {% csrf_token %}
+                    <input type="number" name="nuevos_dias" value="{{ alquiler_info.dias_alquiler }}">
+                    <button type="submit">Actualizar días</button>
+                </form>
+            </td>
+            <td><a class="btn btn-secondary" href="{% url 'eliminar_del_carrito' alquiler_info.alquiler.id %}">Eliminar</a></td>
         {% endfor %}
         </tr>
         <tr class="font-weight-bold">
