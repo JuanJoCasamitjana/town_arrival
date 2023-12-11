@@ -94,6 +94,11 @@ def agregar_carrito(request, casa_id):
                 fecha_inicio = datetime.combine(fecha_inicio, datetime.min.time())
                 fecha_final = datetime.combine(fecha_final, datetime.max.time())
             
+                # Validación para asegurar que FechaInicio no sea mayor que FechaFinal
+                if fecha_inicio > fecha_final:
+                    messages.error(request, "La fecha de inicio no puede ser mayor que la fecha de finalización.")
+                    return HttpResponse('La fecha inicio no puede ser mayor a la fecha fin.')
+                
             # Verificar si el usuario ya tiene un alquiler activo para esta casa
                 alquiler_existente = Alquiler.objects.filter(
                     Q(alquilo=casa) &(
@@ -103,7 +108,6 @@ def agregar_carrito(request, casa_id):
             
                 if alquiler_existente:
                     messages.error(request, f"Ya tienes un alquiler activo para esta casa.")
-                    print("tontito borra la abse de datos")
                     return redirect('info_casa', casa_id=casa_id)
             
             alquiler, created = Alquiler.objects.get_or_create(
@@ -139,7 +143,7 @@ def actualizar_dias_alquiler(request, producto_id):
         try:
             nuevos_dias = int(nuevos_dias)
             if nuevos_dias < 1:
-                return render(request, 'carrito.html', {'error_message': 'Ingrese un número entero mayor o igual a 1'})
+                return HttpResponse('Los días no pueden ser negativos..')
             else:
                 alquiler = get_object_or_404(Alquiler, pk=producto_id)
 
@@ -161,7 +165,7 @@ def actualizar_dias_alquiler(request, producto_id):
                 return redirect('carrito')
         except ValueError:
             # Realiza alguna acción si no se puede convertir a un número entero (por ejemplo, mostrar un mensaje de error)
-            return render(request, 'carrito.html', {'error_message': 'Ingrese un número entero válido'})
+            return HttpResponse('Tienes que poner números enteros.')
     else:
 
         return render(request, 'carrito.html')
