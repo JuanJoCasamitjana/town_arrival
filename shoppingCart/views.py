@@ -2,6 +2,7 @@ from decimal import Decimal
 import re
 import time
 from django.http import HttpResponse
+from django.core.mail import send_mail
 from django.shortcuts import redirect, render, get_object_or_404
 from django.urls import reverse
 import stripe
@@ -59,7 +60,10 @@ def carrito(request):
                 )
                 return redirect(checkout_session.url, code=303)
         else:
-            productos_en_carrito = request.session.get('productos_en_carrito')
+            alquileres = request.session.get('alquileres')
+            for ids in alquileres:
+                alq= Alquiler.objects.get(id = ids)
+                productos_en_carrito.append(alq)
             total_carrito = request.session.get('total_carrito')
             if not productos_en_carrito:
                 productos_en_carrito = []
@@ -96,7 +100,8 @@ def carrito(request):
                 return redirect(checkout_session.url, code=303)
     except Carrito.DoesNotExist:
         # Si el carrito no existe para el usuario, se crea uno nuevo
-        carrito_usuario = Carrito.objects.create(user=request.user)
+        if auth:
+            carrito_usuario = Carrito.objects.create(user=request.user)
         productos_en_carrito = []
         total_carrito = 0
     request.session['total_carrito'] = total_carrito.__str__()
@@ -122,7 +127,7 @@ def agregar_carrito(request, casa_id):
                 fecha_final = form_alquiler.cleaned_data['fecha_fin']
                 fecha_inicio = datetime.combine(fecha_inicio, datetime.min.time())
                 fecha_final = datetime.combine(fecha_final, datetime.max.time())
-            
+                modos_entrega = form_alquiler.cleaned_data['modoEntrega']
             # Verificar si el usuario ya tiene un alquiler activo para esta casa
                 alquiler_existente = Alquiler.objects.filter(
                     Q(alquilo=casa) &(
@@ -139,7 +144,8 @@ def agregar_carrito(request, casa_id):
                 user=usuario,
                 alquilo=casa,
                 FechaInicio=fecha_inicio,
-                FechaFinal=fecha_final
+                FechaFinal=fecha_final,
+                modosEntrega=modos_entrega
             )
 
             # Verificar si el alquiler ya está en el carrito antes de agregarlo
@@ -165,7 +171,7 @@ def agregar_carrito(request, casa_id):
                 fecha_final = form_alquiler.cleaned_data['fecha_fin']
                 fecha_inicio = datetime.combine(fecha_inicio, datetime.min.time())
                 fecha_final = datetime.combine(fecha_final, datetime.max.time())
-            
+                modos_entrega = form_alquiler.cleaned_data['modoEntrega']
             # Verificar si el usuario ya tiene un alquiler activo para esta casa
                 alquiler_existente = Alquiler.objects.filter(
                     Q(alquilo=casa) &(
@@ -180,24 +186,23 @@ def agregar_carrito(request, casa_id):
             
             
 
-            productos_en_carrito = request.session.get('productos_en_carrito')
-            if not productos_en_carrito:
-                 productos_en_carrito = []
-            alquiler = {
-                'id':len(productos_en_carrito),
-                'alquilo':casa.id,
-                'FechaInicio':fecha_inicio,
-                'FechaFinal':fecha_final,
-                'modos_entrega':''
-            }
-            if alquiler not in productos_en_carrito:
-                productos_en_carrito.append(alquiler)
-                request.session['productos_en_carrito'] = productos_en_carrito
-                dias= (alquiler['FechaFinal'] - alquiler['FechaInicio']).days
-                alquiler['FechaFinal']=alquiler['FechaFinal'].isoformat()
-                alquiler['FechaInicio']=alquiler['FechaInicio'].isoformat()
+            alquileres = request.session.get('alquileres')
+            if not alquileres:
+                 alquileres = []
+            alquiler, created = Alquiler.objects.get_or_create(
+                alquilo=casa,
+                FechaInicio=fecha_inicio,
+                FechaFinal=fecha_final,
+                modosEntrega=modos_entrega
+            )
+            if alquiler not in alquileres:
+                alquileres.append(alquiler.id)
+                request.session['alquileres'] = alquileres
+                dias= (alquiler.FechaFinal - alquiler.FechaInicio).days
                 # Actualizar el total del carrito después de agregar el producto
                 total_carrito = Decimal(request.session.get('total_carrito'))
+                if not total_carrito:
+                    total_carrito= 0.0
                 total_carrito += casa.precioPorDia * dias
                 request.session['total_carrito'] = total_carrito.__str__()
                 messages.success(request, f"{casa.titulo} ha sido agregada al carrito.")
@@ -225,13 +230,26 @@ def eliminar_del_carrito(request, producto_id):
         if carrito_usuario.total <= 0 :
             carrito_usuario.total = 0
         carrito_usuario.save()
+        print(f"Total después de la resta: {carrito_usuario.total}")  # Mensaje de depuración
+        messages.success(request, f"{alquiler.alquilo.titulo} ha sido eliminado del carrito.")
         alquiler.delete()
+    else:
+        alquileres = request.session.get('alquileres')
+        alquiler = get_object_or_404(Alquiler, pk=producto_id)
+        alquileres.remove(alquiler)
+        request.session['alquileres'] = alquileres
+        
+        dias= (alquiler.FechaFinal - alquiler.FechaInicio).days
+        # Actualizar el total del carrito después de agregar el producto
+        total_carrito = Decimal(request.session.get('total_carrito'))
+        total_carrito -= alquiler.alquilo.precioPorDia * dias
+        request.session['total_carrito'] = total_carrito.__str__()
+        messages.success(request, f"{alquiler.alquilo.titulo} ha sido eliminada del carrito.")
 
         print(f"Total después de la resta: {carrito_usuario.total}")  # Mensaje de depuración
 
         messages.success(request, f"{alquiler.alquilo.titulo} ha sido eliminado del carrito.")
-    else:
-        messages.error(request, "Debes iniciar sesión para eliminar productos del carrito.")
+        alquiler.delete()
 
     return redirect('carrito')
 
@@ -252,12 +270,28 @@ def pagos(request):
             cliente.save()
             todos = productos_en_carrito
             # Restablecer el carrito del usuario
+            asunto = 'Compra realizada en Town Arrival'
+            cuerpo_mensaje = f"Se ha realizado su compra con exito. Método utilizado: Contrarrembolso. Importe total: {user_payment.total}."
+            send_mail(
+                asunto,
+                cuerpo_mensaje,
+                settings.EMAIL_HOST_USER,
+                [cliente.user.email],  
+                fail_silently=False,
+            )
             user_payment.productos.clear()
             user_payment.total = 0
             user_payment.save()
         else:
-            productos_en_carrito = []
-            total_vendido = 0
+            productos_en_carrito = request.session.get('alquileres')
+            total_vendido = Decimal(request.session.get('total_carrito'))
+            if total_vendido < 20:
+                total_vendido = total_vendido + 10
+            for alq in productos_en_carrito:
+                hogar = Casa.objects.get(titulo = alq.alquilo.titulo)
+                hogar.ocupadas.add(alq)
+                hogar.save()
+            todos = productos_en_carrito
 
 
     return render(request, 'pagos.html', {
@@ -269,27 +303,48 @@ def pagos(request):
 
 
 def payment_successful(request):
-    stripe.api_key = settings.STRIPE_SECRET_KEY_TEST
-    checkout_session_id = request.GET.get('session_id', None)
-    user_payment = Carrito.objects.get(user=request.user)
-    cliente = Profile.objects.get(user=request.user)
-    productos_en_carrito = user_payment.productos.all()
-    total_vendido = user_payment.total
-    user_payment.stripe_checkout_id = checkout_session_id
-    if total_vendido < 20:
-        total_vendido = total_vendido + 10
-    for alq in productos_en_carrito:
-        cliente.alquiladas.add(alq)
-        hogar = Casa.objects.get(titulo = alq.alquilo.titulo)
-        hogar.ocupadas.add(alq)
-        hogar.save()
-    cliente.save()
-    todos = productos_en_carrito
-    # Restablecer el carrito del usuario
-    user_payment.productos.clear()
-    user_payment.total = 0
-    
-    user_payment.save()
+    if request.user.is_authenticated:
+        stripe.api_key = settings.STRIPE_SECRET_KEY_TEST
+        checkout_session_id = request.GET.get('session_id', None)
+        user_payment = Carrito.objects.get(user=request.user)
+        cliente = Profile.objects.get(user=request.user)
+        productos_en_carrito = user_payment.productos.all()
+        total_vendido = user_payment.total
+        user_payment.stripe_checkout_id = checkout_session_id
+        if total_vendido < 20:
+            total_vendido = total_vendido + 10
+        for alq in productos_en_carrito:
+            cliente.alquiladas.add(alq)
+            hogar = Casa.objects.get(titulo = alq.alquilo.titulo)
+            hogar.ocupadas.add(alq)
+            hogar.save()
+        cliente.save()
+        todos = productos_en_carrito
+        asunto = 'Compra realizada en Town Arrival'
+        cuerpo_mensaje = f"Se ha realizado su compra con exito. Método utilizado: Tarjeta. Importe total: {total_vendido}."
+        send_mail(
+                asunto,
+                cuerpo_mensaje,
+                settings.EMAIL_HOST_USER,
+                [cliente.user.email],  
+                fail_silently=False,
+            )
+        user_payment.productos.clear()
+        user_payment.total = 0
+        user_payment.save()
+        
+    else:
+        stripe.api_key = settings.STRIPE_SECRET_KEY_TEST
+        checkout_session_id = request.GET.get('session_id', None)
+        productos_en_carrito = request.session.get('alquileres')
+        total_vendido = Decimal(request.session.get('total_carrito'))
+        if total_vendido < 20:
+            total_vendido = total_vendido + 10
+        for alq in productos_en_carrito:
+            hogar = Casa.objects.get(titulo = alq.alquilo.titulo)
+            hogar.ocupadas.add(alq)
+            hogar.save()
+        todos = productos_en_carrito
     return render(request, 'pagos.html', {'todos': todos,
         'total_vendido': total_vendido})
     
