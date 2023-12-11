@@ -134,26 +134,37 @@ def agregar_carrito(request, casa_id):
     return redirect('info_casa', casa_id=casa_id)
 
 def actualizar_dias_alquiler(request, producto_id):
-    if request.method == 'POST' and request.user.is_authenticated:
-        nuevos_dias = int(request.POST.get('nuevos_dias'))
-        alquiler = get_object_or_404(Alquiler, pk=producto_id)
+    if request.method == 'POST':
+        nuevos_dias = request.POST.get('nuevos_dias')
+        try:
+            nuevos_dias = int(nuevos_dias)
+            if nuevos_dias < 1:
+                return render(request, 'carrito.html', {'error_message': 'Ingrese un número entero mayor o igual a 1'})
+            else:
+                alquiler = get_object_or_404(Alquiler, pk=producto_id)
 
-        # Guardar el precio actual del alquiler antes de actualizar los días
-        precio_alquiler_anterior = alquiler.alquilo.precioPorDia * (alquiler.FechaFinal - alquiler.FechaInicio).days
+                # Guardar el precio actual del alquiler antes de actualizar los días
+                precio_alquiler_anterior = alquiler.alquilo.precioPorDia * (alquiler.FechaFinal - alquiler.FechaInicio).days
 
-        # Actualizar la duración del alquiler
-        alquiler.FechaFinal = alquiler.FechaInicio + timedelta(days=nuevos_dias)
-        alquiler.save()
+                # Actualizar la duración del alquiler
+                alquiler.FechaFinal = alquiler.FechaInicio + timedelta(days=nuevos_dias)
+                alquiler.save()
 
-        # Calcular el nuevo precio del alquiler
-        precio_alquiler_nuevo = alquiler.alquilo.precioPorDia * nuevos_dias
+                # Calcular el nuevo precio del alquiler
+                precio_alquiler_nuevo = alquiler.alquilo.precioPorDia * nuevos_dias
 
-        # Actualizar el precio del alquiler en el carrito
-        carrito_usuario = Carrito.objects.get(user=request.user)
-        carrito_usuario.total = F('total') - precio_alquiler_anterior + precio_alquiler_nuevo
-        carrito_usuario.save()
+                # Actualizar el precio del alquiler en el carrito
+                carrito_usuario = Carrito.objects.get(user=request.user)
+                carrito_usuario.total = F('total') - precio_alquiler_anterior + precio_alquiler_nuevo
+                carrito_usuario.save()
 
-    return redirect('carrito')
+                return redirect('carrito')
+        except ValueError:
+            # Realiza alguna acción si no se puede convertir a un número entero (por ejemplo, mostrar un mensaje de error)
+            return render(request, 'carrito.html', {'error_message': 'Ingrese un número entero válido'})
+    else:
+
+        return render(request, 'carrito.html')
 
 def eliminar_del_carrito(request, producto_id):
     if request.user.is_authenticated:
