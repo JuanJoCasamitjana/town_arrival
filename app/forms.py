@@ -110,3 +110,15 @@ class CategoriaAdminForm(forms.ModelForm):
 
 class OptionalImageUploadForm(forms.Form):
     imagen = forms.ImageField(required=False)
+
+class SeguimientoForm(forms.Form):
+    id_alquiler = forms.IntegerField(
+        label='',
+        widget=forms.NumberInput(
+            attrs={
+                'class':'form-control',
+                'step': '1',
+                'placeholder': 'Introduce el codigo de tu pedido',
+                }
+        )
+    )

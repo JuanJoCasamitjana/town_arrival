@@ -12,6 +12,7 @@
             <a class="navbar-brand" href="{% url 'inicio' %}">Town Arrival</a>
             {% if user.is_authenticated %}
             <ul class="navbar-nav ml-auto">
+                <li class="nav-item"><a class="nav-link" href="{% url 'seguimiento' %}">Seguimiento</a></li>
                 {% if user.profile.rol == 'Ar' %}
                 <li class="nav-item"><a class="nav-link" href="{% url 'crear_casa' %}">Añadir Casa</a></li>
                 {% endif %}
@@ -30,6 +31,7 @@
             {% endif %}
             {% if not user.is_authenticated %}
                 <ul class="navbar-nav ml-auto">
+                    <li class="nav-item"><a class="nav-link" href="{% url 'seguimiento' %}">Seguimiento</a></li>
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'carrito' %}">
                             Carrito
