@@ -4,6 +4,17 @@
 {% block content %}
 <div class="container mt-4">
   <article class="card">
+    {% if messages %}
+        <div class="container-fluid">
+            {% for message in messages %}
+              {% if 'error' in message.tags %}
+                <p class="alert alert-danger mt-4">{{message}}</p>
+              {% else %}
+              <p class="alert alert-success mt-4">{{message}}</p>
+              {% endif %}
+            {% endfor %}
+        </div>
+    {% endif %}
     <img src="{{ casa.imagen }}" class="card-img-top" style="object-fit: cover; max-width: 50%; max-height: 50%;"
       alt="{{ casa.titulo }}">
     <div class="card-body">

@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from django.db import models
 from django.contrib.auth.models import AbstractUser, Group, Permission
+from django.forms import ValidationError
 from django.http import HttpResponse
 
 from django.apps import apps
@@ -28,7 +29,7 @@ class Alquiler(models.Model):
         super().clean()
         if self.FechaInicio and self.FechaFinal:
             if self.FechaInicio > self.FechaFinal:
-                return HttpResponse("La fecha de inicio no puede ser mayor que la fecha de finalización.")
+                raise ValidationError("La fecha de inicio no puede ser mayor que la fecha de finalización.")
     
     def save(self, *args, **kwargs):
         self.clean()  # Llama al método clean antes de guardar
