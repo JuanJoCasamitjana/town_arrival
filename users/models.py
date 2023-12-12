@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from django.db import models
 from django.contrib.auth.models import AbstractUser, Group, Permission
 from django.http import HttpResponse
@@ -13,8 +14,8 @@ class User(AbstractUser):
     )
 
 class Alquiler(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    alquilo = models.ForeignKey('app.Casa', on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    alquilo = models.ForeignKey('app.Casa', on_delete=models.CASCADE)  # Referencia a la Casa alquilada
     FechaInicio = models.DateField()
     FechaFinal = models.DateField()
     modosEntrega = models.CharField(max_length=2, choices=[
@@ -52,6 +53,4 @@ class Profile(models.Model):
         return self.user.username
     
 
-
-    
 
