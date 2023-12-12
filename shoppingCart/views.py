@@ -122,7 +122,7 @@ def carrito(request):
 
 
     request.session['total_carrito'] = total_carrito.__str__()
-
+    print(alquileres_con_info)
     return render(request, 'carrito.html', {
         'productos_en_carrito': alquileres_con_info,
         'total_carrito': total_carrito,
@@ -292,7 +292,6 @@ def eliminar_del_carrito(request, producto_id):
         print(f"Total después de la resta: {carrito_usuario.total}")  # Mensaje de depuración
 
         messages.success(request, f"{alquiler.alquilo.titulo} ha sido eliminado del carrito.")
-        alquiler.delete()
     else:
 
         messages.error(request, "Debes iniciar sesión para eliminar productos del carrito.")

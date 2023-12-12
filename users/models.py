@@ -35,7 +35,7 @@ class Alquiler(models.Model):
         super().save(*args, **kwargs)
     
     def __str__(self):
-        return f"{self.user.username} - {self.alquilo.titulo}"
+        return f"{self.alquilo.titulo} - ({self.FechaFinal.isoformat()} - {self.FechaInicio.isoformat()})"
 
 class Profile(models.Model):
     #Modelo de usuario basico de Django
