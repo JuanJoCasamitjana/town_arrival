@@ -18,6 +18,7 @@ import uuid
 from django.conf import settings
 from app.forms import AlquilerForm
 from django.contrib.auth.decorators import login_required
+from django.db.models import F
 
 def carrito(request):
     auth =request.user.is_authenticated
@@ -107,17 +108,29 @@ def carrito(request):
             carrito_usuario = Carrito.objects.create(user=request.user)
         productos_en_carrito = []
         total_carrito = 0
+
+
+        # Crear una lista de diccionarios con información adicional para cada alquiler en el carrito
+    alquileres_con_info = []
+    for alquiler in productos_en_carrito:
+        dias_alquiler = (alquiler.FechaFinal - alquiler.FechaInicio).days
+        alquiler_info = {
+            'alquiler': alquiler,
+            'dias_alquiler': dias_alquiler,
+        }
+        alquileres_con_info.append(alquiler_info)
+
+
     request.session['total_carrito'] = total_carrito.__str__()
+
     return render(request, 'carrito.html', {
-        'productos_en_carrito': productos_en_carrito,
+        'productos_en_carrito': alquileres_con_info,
         'total_carrito': total_carrito,
         'auth' : auth,
         'gestion': gestion,
         'total_post_gestion': total_post_gestion,
         'cosas': cosas,
     })
-
-
 
 def agregar_carrito(request, casa_id):
     if request.method == 'POST':
@@ -130,6 +143,14 @@ def agregar_carrito(request, casa_id):
                 fecha_final = form_alquiler.cleaned_data['fecha_fin']
                 fecha_inicio = datetime.combine(fecha_inicio, datetime.min.time())
                 fecha_final = datetime.combine(fecha_final, datetime.max.time())
+
+            
+                # Validación para asegurar que FechaInicio no sea mayor que FechaFinal
+                if fecha_inicio > fecha_final:
+                    messages.error(request, "La fecha de inicio no puede ser mayor que la fecha de finalización.")
+                    return HttpResponse('La fecha inicio no puede ser mayor a la fecha fin.')
+                
+
                 modos_entrega = form_alquiler.cleaned_data['modoEntrega']
             # Verificar si el usuario ya tiene un alquiler activo para esta casa
                 alquiler_existente = Alquiler.objects.filter(
@@ -140,7 +161,6 @@ def agregar_carrito(request, casa_id):
             
                 if alquiler_existente:
                     messages.error(request, f"Ya tienes un alquiler activo para esta casa.")
-                    print("tontito borra la abse de datos")
                     return redirect('info_casa', casa_id=casa_id)
             
             alquiler, created = Alquiler.objects.get_or_create(
@@ -218,25 +238,65 @@ def agregar_carrito(request, casa_id):
 
     return redirect('info_casa', casa_id=casa_id)
 
+def actualizar_dias_alquiler(request, producto_id):
+    if request.method == 'POST':
+        nuevos_dias = request.POST.get('nuevos_dias')
+        try:
+            nuevos_dias = int(nuevos_dias)
+            if nuevos_dias < 1:
+                return HttpResponse('Los días no pueden ser negativos..')
+            else:
+                alquiler = get_object_or_404(Alquiler, pk=producto_id)
+
+                # Guardar el precio actual del alquiler antes de actualizar los días
+                precio_alquiler_anterior = alquiler.alquilo.precioPorDia * (alquiler.FechaFinal - alquiler.FechaInicio).days
+
+                # Actualizar la duración del alquiler
+                alquiler.FechaFinal = alquiler.FechaInicio + timedelta(days=nuevos_dias)
+                alquiler.save()
+
+                # Calcular el nuevo precio del alquiler
+                precio_alquiler_nuevo = alquiler.alquilo.precioPorDia * nuevos_dias
+
+                # Actualizar el precio del alquiler en el carrito
+                carrito_usuario = Carrito.objects.get(user=request.user)
+                carrito_usuario.total = F('total') - precio_alquiler_anterior + precio_alquiler_nuevo
+                carrito_usuario.save()
+
+                return redirect('carrito')
+        except ValueError:
+            # Realiza alguna acción si no se puede convertir a un número entero (por ejemplo, mostrar un mensaje de error)
+            return HttpResponse('Tienes que poner números enteros.')
+    else:
+
+        return render(request, 'carrito.html')
+
 def eliminar_del_carrito(request, producto_id):
     if request.user.is_authenticated:
         carrito_usuario = Carrito.objects.get(user=request.user)
-        
         alquiler = get_object_or_404(Alquiler, pk=producto_id)
         
         carrito_usuario.productos.remove(alquiler)
 
-        print(f"Producto eliminado: {alquiler.alquilo.titulo}")  # Mensaje de depuración
-        print(f"Total antes de la resta: {carrito_usuario.total}")  # Mensaje de depuración
-        dias= (alquiler.FechaFinal - alquiler.FechaInicio).days
-        carrito_usuario.total -= alquiler.alquilo.precioPorDia * dias  # Restar el precio del producto eliminado
-        if carrito_usuario.total <= 0 :
+        dias = (alquiler.FechaFinal - alquiler.FechaInicio).days
+        carrito_usuario.total -= alquiler.alquilo.precioPorDia * dias
+
+        if carrito_usuario.total <= 0:
             carrito_usuario.total = 0
+
         carrito_usuario.save()
+
+        alquiler.delete()
+
+
         print(f"Total después de la resta: {carrito_usuario.total}")  # Mensaje de depuración
+
         messages.success(request, f"{alquiler.alquilo.titulo} ha sido eliminado del carrito.")
         alquiler.delete()
     else:
+
+        messages.error(request, "Debes iniciar sesión para eliminar productos del carrito.")
+
         alquileres = request.session.get('alquileres')
         alquiler = get_object_or_404(Alquiler, pk=producto_id)
         alquileres.remove(producto_id)

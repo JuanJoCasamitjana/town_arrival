@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from django.db import models
 from django.contrib.auth.models import AbstractUser, Group, Permission
+from django.http import HttpResponse
 
 from django.apps import apps
 
@@ -11,16 +12,27 @@ class User(AbstractUser):
     user_permissions = models.ManyToManyField(
         Permission, related_name='custom_user_permissions'
     )
+
 class Alquiler(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     alquilo = models.ForeignKey('app.Casa', on_delete=models.CASCADE)  # Referencia a la Casa alquilada
     FechaInicio = models.DateField()
     FechaFinal = models.DateField()
-    modosEntrega = models.CharField(max_length=2,choices=[
-        ("LB", "Dejar las llaves en buzon"),
+    modosEntrega = models.CharField(max_length=2, choices=[
+        ("LB", "Dejar las llaves en buzón"),
         ("LV", "Dejar las llaves con vecino"),
         ("LP", "Entrega de llaves personal")
-    ],default='LP')
+    ], default='LP')
+    
+    def clean(self):
+        super().clean()
+        if self.FechaInicio and self.FechaFinal:
+            if self.FechaInicio > self.FechaFinal:
+                return HttpResponse("La fecha de inicio no puede ser mayor que la fecha de finalización.")
+    
+    def save(self, *args, **kwargs):
+        self.clean()  # Llama al método clean antes de guardar
+        super().save(*args, **kwargs)
     
     def __str__(self):
         return f"{self.user.username} - {self.alquilo.titulo}"

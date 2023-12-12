@@ -33,7 +33,6 @@ urlpatterns = [
     path('información/', views.quienes_somos, name='quienes_somos'),
     path('payment_successful', v.payment_successful, name='payment_successful'),
 	path('payment_cancelled', v.payment_cancelled, name='payment_cancelled'),
-	path('stripe_webhook', v.stripe_webhook, name='stripe_webhook')
-
-
+	path('stripe_webhook', v.stripe_webhook, name='stripe_webhook'),
+    path('actualizar-dias/<int:producto_id>/', v.actualizar_dias_alquiler, name='actualizar_dias_alquiler'),
 ]
