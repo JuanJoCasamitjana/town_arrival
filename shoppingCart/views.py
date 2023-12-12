@@ -61,6 +61,9 @@ def carrito(request):
                 return redirect(checkout_session.url, code=303)
         else:
             alquileres = request.session.get('alquileres')
+            if not alquileres:
+                alquileres = []
+            productos_en_carrito = []
             for ids in alquileres:
                 alq= Alquiler.objects.get(id = ids)
                 productos_en_carrito.append(alq)
@@ -236,7 +239,7 @@ def eliminar_del_carrito(request, producto_id):
     else:
         alquileres = request.session.get('alquileres')
         alquiler = get_object_or_404(Alquiler, pk=producto_id)
-        alquileres.remove(alquiler)
+        alquileres.remove(producto_id)
         request.session['alquileres'] = alquileres
         
         dias= (alquiler.FechaFinal - alquiler.FechaInicio).days
@@ -245,10 +248,6 @@ def eliminar_del_carrito(request, producto_id):
         total_carrito -= alquiler.alquilo.precioPorDia * dias
         request.session['total_carrito'] = total_carrito.__str__()
         messages.success(request, f"{alquiler.alquilo.titulo} ha sido eliminada del carrito.")
-
-        print(f"Total después de la resta: {carrito_usuario.total}")  # Mensaje de depuración
-
-        messages.success(request, f"{alquiler.alquilo.titulo} ha sido eliminado del carrito.")
         alquiler.delete()
 
     return redirect('carrito')
