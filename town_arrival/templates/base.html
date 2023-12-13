@@ -15,7 +15,9 @@
                 {% if user.profile.rol == 'Ar' %}
                 <li class="nav-item"><a class="nav-link" href="{% url 'crear_casa' %}">Añadir Casa</a></li>
                 {% endif %}
+                {% if user.is_authenticated %}
                 <li class="nav-item"><a class="nav-link" href="{% url 'update_profile' %}">Actualizar Perfil</a></li>
+                {% endif %}
                 <li class="nav-item"><a class="nav-link" href="{% url 'mis-reclamaciones' %}">Mis reclamaciones</a></li>
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'carrito' %}">
