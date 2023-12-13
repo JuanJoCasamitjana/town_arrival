@@ -5,8 +5,13 @@
     <h1>Tu compra ha sido efectuada</h1>
     <ul>
         {% for alquiler in todos %}
+            <h4>Alquiler:<h4>
             <h5>Casa:</h5>
             <li>{{ alquiler.alquilo.titulo }}</li>
+            <h5>Id del pedido:</h5>
+            <li>{{ alquiler.id }}</li>
+            <h5>Modo de entrega:</h5>
+            <li>{{ alquiler.modosEntrega }}</li>
         {% endfor %}
     </ul>
     <li>{{ total_vendido }}

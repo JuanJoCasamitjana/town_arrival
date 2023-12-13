@@ -330,6 +330,8 @@ def eliminar_del_carrito(request, producto_id):
 def pagos(request):
     if request.method == 'POST':
         if request.user.is_authenticated:
+            id_alquilados = []
+            detalle_alquileres = []
             user_payment = Carrito.objects.get(user=request.user)
             cliente = Profile.objects.get(user=request.user)
             productos_en_carrito = user_payment.productos.all()
@@ -337,6 +339,9 @@ def pagos(request):
             if total_vendido < 20:
                 total_vendido = total_vendido + 10
             for alq in productos_en_carrito:
+                id_alquilados.append(alq.id)
+                detalle_alquiler = f"{alq.alquilo.titulo} - ({alq.FechaFinal} - {alq.FechaInicio})"
+                detalle_alquileres.append(detalle_alquiler)
                 cliente.alquiladas.add(alq)
                 hogar = Casa.objects.get(titulo = alq.alquilo.titulo)
                 hogar.ocupadas.add(alq)
@@ -344,13 +349,23 @@ def pagos(request):
             cliente.save()
             todos = productos_en_carrito
             # Restablecer el carrito del usuario
+            cuerpo_mensaje = "Se ha realizado su compra con éxito.\n"
+            cuerpo_mensaje += f"Método utilizado: Tarjeta.\n"
+            cuerpo_mensaje += f"Importe total: {total_vendido} EUR.\n"
+            cuerpo_mensaje += "Los productos solicitados son:\n"
+            
+            # Agregar los detalles de los alquileres y sus IDs de pedido al cuerpo del mensaje
+            for index, detalle in enumerate(detalle_alquileres):
+                cuerpo_mensaje += f"- {detalle} con id de pedido {id_alquilados[index]}\n"
+            
             asunto = 'Compra realizada en Town Arrival'
-            cuerpo_mensaje = f"Se ha realizado su compra con exito. Método utilizado: Contrarrembolso. Importe total: {user_payment.total}."
+
+            # Enviar el correo electrónico de confirmación
             send_mail(
                 asunto,
                 cuerpo_mensaje,
                 settings.EMAIL_HOST_USER,
-                [cliente.user.email],  
+                [cliente.user.email],
                 fail_silently=False,
             )
             user_payment.productos.clear()
@@ -359,14 +374,18 @@ def pagos(request):
         else:
             productos_en_carrito = request.session.get('alquileres')
             total_vendido = Decimal(request.session.get('total_carrito'))
+            todos=[]
             if total_vendido < 20:
                 total_vendido = total_vendido + 10
+            
             for alq in productos_en_carrito:
-                hogar = Casa.objects.get(titulo = alq.alquilo.titulo)
-                hogar.ocupadas.add(alq)
+                alqu = Alquiler.objects.get(id = alq)
+                todos.append(alqu)
+                hogar = Casa.objects.get(titulo = alqu.alquilo.titulo)
+                hogar.ocupadas.add(alqu)
                 hogar.save()
-            todos = productos_en_carrito
-
+            request.session['alquileres'] = []
+            request.session['total_carrito'] = 0.0            
 
     return render(request, 'pagos.html', {
         'todos': todos,
