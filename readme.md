@@ -2,7 +2,7 @@ DOCKER:
 
 1. Tener instalado docker: https://www.docker.com/products/docker-desktop/
 2. paso: Construirlo -> 
-    ```docker build -t town_arrival```
+    ```docker build -t town_arrival .```
 3. paso: Ejecutarlo -> 
     ```docker run -p 8000:8000 town_arrival```
 

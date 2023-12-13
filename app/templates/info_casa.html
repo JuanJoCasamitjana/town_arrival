@@ -4,6 +4,17 @@
 {% block content %}
 <div class="container mt-4">
   <article class="card">
+    {% if messages %}
+        <div class="container-fluid">
+            {% for message in messages %}
+              {% if 'error' in message.tags %}
+                <p class="alert alert-danger mt-4">{{message}}</p>
+              {% else %}
+              <p class="alert alert-success mt-4">{{message}}</p>
+              {% endif %}
+            {% endfor %}
+        </div>
+    {% endif %}
     <img src="{{ casa.imagen }}" class="card-img-top" style="object-fit: cover; max-width: 50%; max-height: 50%;"
       alt="{{ casa.titulo }}">
     <div class="card-body">
@@ -11,17 +22,32 @@
       <p class="card-text">{{ casa.descripcion }}</p>
       <p class="card-text"><strong>Localidad:</strong> {{ casa.localidad }}</p>
       <p class="card-text"><strong>Dirección:</strong> {{ casa.direccion }}</p>
+      <div class="d-flex mb-4">
+        {% for categoria in casa.categorias.all %}
+        <a href="{% url 'por_categoria' categoria=categoria.url %}" class="btn btn-warning mr-2">{{ categoria }}</a>
+        {% endfor %}
+      </div>
 
+        <p href="#" class="border border-dark rounded-sm w-50">Contactar al Arrendador: {{casa.arrendador.user.email}}</p>
+        {% if is_owner %}
+        <div class="d-flex">
+          <a href="{% url 'delete_casa' casa_id=casa.id%}" class="btn btn-danger mr-4">Borrar casa</a>
+          <a href="{% url 'editar_casa' casa_id=casa.id%}" class="btn btn-warning border border-danger">Editar casa</a>
+        </div>
+        {% endif %}
       <form method="post" class="form-group" action="{% url 'agregar_carrito' casa.id %}">
         <h3>Alquilar</h3>
+        <h4 class="bg-success w-50 rounded-sm border border-dark">Precio por dia {{ casa.precioPorDia }} €</h4>
         {% csrf_token %}
         {{ alquiler_form.as_p }}
         <button type="submit" class="btn btn-primary">Agregar al Carrito</button>
       </form>
+      <!-- info_casa.html -->
+      <a href="{% url 'presentar_reclamacion' casa.id %}" class="btn btn-primary">Presentar Reclamación</a>
     </div>
-
-    <a href="#" class="btn btn-primary">Contactar al Arrendador</a>
-
+    {% if es_propietario %}
+        <a href="{% url 'anadir_categorias' id=casa.id %}" class="btn btn-secondary mt-4 mb-4">Añadir categorias</a>
+    {% endif %}
         <h3>Comentarios</h3>
         <table class="table table-striped">
           <tr>

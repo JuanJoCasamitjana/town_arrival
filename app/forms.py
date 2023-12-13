@@ -1,6 +1,6 @@
 # en tu archivo forms.py
 from django import forms
-from .models import Casa, Comentario
+from .models import Casa, Categoria, Comentario, Reclamacion
 
 class CasaForm(forms.ModelForm):
 
@@ -32,10 +32,18 @@ class CasaForm(forms.ModelForm):
             'class':'form-control'
             })
     )
+    precioPorDia = forms.DecimalField(
+        label='',
+        widget=forms.NumberInput(attrs={
+            'placeholder': 'Precio por dia "00.00"',
+            'class':'form-control'
+        }
+        )
+    )
     class Meta:
         model = Casa
         exclude = ['arrendador', 'imagen']
-        fields = ['arrendador', 'titulo', 'descripcion', 'imagen', 'localidad', 'direccion']
+        fields = ['arrendador', 'titulo', 'descripcion','precioPorDia' , 'imagen', 'localidad', 'direccion']
 
 class ImageUploadForm(forms.Form):
     imagen = forms.ImageField()
@@ -50,6 +58,19 @@ class ComentarioForm(forms.ModelForm):
                 'class':'form-control'
                 }),
         }
+
+        
+
+class ReclamacionForm(forms.ModelForm):
+    class Meta:
+        model = Reclamacion
+        fields = ['texto', 'pretensiones']
+        widgets = {
+            'texto': forms.Textarea(attrs={'rows': 4}),
+            'pretensiones': forms.Textarea(attrs={'rows': 4}),
+        }
+
+tipos =("LB", "Dejar las llaves en buzon"),("LV", "Dejar las llaves con vecino"), ("LP", "Entrega de llaves personal")
 
 class AlquilerForm(forms.Form):
     fecha_inicio = forms.DateField(
@@ -72,3 +93,20 @@ class AlquilerForm(forms.Form):
                 }
             )
         )
+    modoEntrega = forms.ChoiceField(choices = tipos)
+
+
+class CategoriasForm(forms.Form):
+    categorias = forms.ModelMultipleChoiceField(
+        queryset=Categoria.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        required=False
+    )
+
+class CategoriaAdminForm(forms.ModelForm):
+    class Meta:
+        model = Categoria
+        fields = ['nombre']
+
+class OptionalImageUploadForm(forms.Form):
+    imagen = forms.ImageField(required=False)
