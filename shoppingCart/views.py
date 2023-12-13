@@ -114,15 +114,16 @@ def carrito(request):
     alquileres_con_info = []
     for alquiler in productos_en_carrito:
         dias_alquiler = (alquiler.FechaFinal - alquiler.FechaInicio).days
+        total = dias_alquiler * alquiler.alquilo.precioPorDia
         alquiler_info = {
             'alquiler': alquiler,
             'dias_alquiler': dias_alquiler,
+            'total':total
         }
         alquileres_con_info.append(alquiler_info)
 
 
     request.session['total_carrito'] = total_carrito.__str__()
-
     return render(request, 'carrito.html', {
         'productos_en_carrito': alquileres_con_info,
         'total_carrito': total_carrito,
@@ -180,11 +181,8 @@ def agregar_carrito(request, casa_id):
                 carrito_usuario.total += casa.precioPorDia * dias
                 carrito_usuario.save()
                 messages.success(request, f"{casa.titulo} ha sido agregada al carrito.")
-                print("Producto agregado correctamente al carrito")
             else:
                 messages.info(request, f"{casa.titulo} ya está en el carrito.")
-                print("El producto ya está en el carrito")
-            print("Producto eliminado, redireccionando a la página de detalle de la casa")
             return redirect('detalle_casa', casa_id=casa_id)
         else:
             casa = get_object_or_404(Casa, pk=casa_id)
@@ -204,7 +202,6 @@ def agregar_carrito(request, casa_id):
             
                 if alquiler_existente:
                     messages.error(request, f"Ya tienes un alquiler activo para esta casa.")
-                    print("tontito borra la abse de datos")
                     return redirect('info_casa', casa_id=casa_id)
             
             
@@ -218,22 +215,21 @@ def agregar_carrito(request, casa_id):
                 FechaFinal=fecha_final,
                 modosEntrega=modos_entrega
             )
-            if alquiler not in alquileres:
+            if alquiler.id not in alquileres:
                 alquileres.append(alquiler.id)
                 request.session['alquileres'] = alquileres
                 dias= (alquiler.FechaFinal - alquiler.FechaInicio).days
                 # Actualizar el total del carrito después de agregar el producto
-                total_carrito = Decimal(request.session.get('total_carrito'))
+                total_carrito = request.session.get('total_carrito')
                 if not total_carrito:
-                    total_carrito= 0.0
+                    total_carrito = Decimal(0.)
+                else:
+                    total_carrito = Decimal(total_carrito)
                 total_carrito += casa.precioPorDia * dias
                 request.session['total_carrito'] = total_carrito.__str__()
                 messages.success(request, f"{casa.titulo} ha sido agregada al carrito.")
-                print("Producto agregado correctamente al carrito")
             else:
                 messages.info(request, f"{casa.titulo} ya está en el carrito.")
-                print("El producto ya está en el carrito")
-            print("Producto eliminado, redireccionando a la página de detalle de la casa")
             return redirect('detalle_casa', casa_id=casa_id)
 
     return redirect('info_casa', casa_id=casa_id)
@@ -287,15 +283,9 @@ def eliminar_del_carrito(request, producto_id):
         carrito_usuario.save()
 
         alquiler.delete()
-
-
-        print(f"Total después de la resta: {carrito_usuario.total}")  # Mensaje de depuración
-
         messages.success(request, f"{alquiler.alquilo.titulo} ha sido eliminado del carrito.")
-        alquiler.delete()
     else:
-
-        messages.error(request, "Debes iniciar sesión para eliminar productos del carrito.")
+        #messages.error(request, "Debes iniciar sesión para eliminar productos del carrito.")
 
         alquileres = request.session.get('alquileres')
         alquiler = get_object_or_404(Alquiler, pk=producto_id)
