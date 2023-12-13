@@ -6,20 +6,35 @@
 
 <div class="container">
     <table class="table table-striped">
-        {% for alquiler in pedidos %}
+        
             <thead>
                 <tr>
                     <td>Casa</td>
                     <td>Fecha de inicio</td>
                     <td>Fecha de fin</td>
+                    <td>Localidad</td>
+                    <td>Direccion</td>
+                    <td>Estado</td>
                 </tr>
             </thead>
+            {% for alquiler in pedidos %}
             <tr>
-                <td>alquiler.alquilo.titulo</td>
-                <td>alquiler.FechaInicio</td>
-                <td>alquiler.FechaFinal</td>
+                <td>{{ alquiler.alquilo.titulo }}</td>
+                <td>{{ alquiler.FechaInicio }}</td>
+                <td>{{ alquiler.FechaFinal }}</td>
+                <td>{{ alquiler.alquilo.localidad}}</td>
+                <td>{{ alquiler.alquilo.direccion }}</td>
+                <td>
+                    {% if alquiler.FechaInicio > ahora %}
+                        Pendiente
+                    {% elif alquiler.FechaFinal < ahora %}
+                        Acabado
+                    {% else %}
+                        En curso
+                    {% endif %}
+                </td>
             </tr>
-        {% endfor %}
+            {% endfor %}
     </table>
 </div>
 

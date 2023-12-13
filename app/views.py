@@ -1,3 +1,4 @@
+from datetime import datetime
 from decimal import Decimal
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
@@ -303,9 +304,10 @@ def editar_casa(request, casa_id):
 
 def seguimiento(request):
     usuario: User = request.user
+    ahora = datetime.now().date()
     if usuario.is_authenticated:
         pedidos = Alquiler.objects.filter(user=usuario)
-        return render(request, 'seguimiento.html', {'pedidos':pedidos})
+        return render(request, 'seguimiento.html', {'pedidos':pedidos, 'ahora':ahora})
     return redirect('form_seguimiento')
 
 def form_seguimiento(request):
