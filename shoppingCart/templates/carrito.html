@@ -3,53 +3,62 @@
 <body>
     
     <div class="container">
-        <h1>Carrito de Compras</h1>
-        {% if cosas %}
-        <p> Si el total supera los 20€ no se aplicarán los gastos de gestión</p>
-        <!-- Mostrar productos en el carrito -->
-        <table class="table table-striped">
-            
-            {% for alquiler in productos_en_carrito %}
-            <tr>
-                <td>{{ alquiler.alquiler.alquilo.titulo }}</td>
-                <td>{{ alquiler.total }} € total</td>
-                <td>{{ alquiler.alquiler.FechaInicio }}</td>
-                <td>{{ alquiler.alquiler.FechaFinal }}</td>
-                <td><a class="btn btn-danger" href="{% url 'eliminar_del_carrito' producto_id=alquiler.alquiler.id %}">Eliminar</a></td>
-                <td>
-                    <form method="post" class="form-inline" action="{% url 'actualizar_dias_alquiler' alquiler.alquiler.id %}">
-                        {% csrf_token %}
-                        <input class="form-control mr-1" type="number" name="nuevos_dias" value="{{ alquiler.dias_alquiler }}">
-                        <button class="btn btn-primary" type="submit">Actualizar días</button>
-                    </form>
-                </td>
-            </tr>
-            {% endfor %}
-            </tr>
-            <tr class="font-weight-bold">
-                <td>Total</td>
-                <td>{{ total_carrito }} €</td>
-            </tr>
-        </table>
-        {% if gestion %}
-            <p>Añadido 10€ de gastos de gestion al no superar los 20€ en total</p>
-            <p>Precio original: ${{total_carrito}}
-        {% endif %}
-        <!-- Mostrar el total del carrito -->
-        <p>Total: ${{ total_post_gestion }}</p>
-        
-        <form method="post" action="{% url 'pagos' %}">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-primary">Pago Contrarrembolso</button>
-        </form>
-        <form method="post" action="{% url 'carrito' %}">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-primary mt-2 mb-2">Pago con tarjeta</button>
-        </form>
-        {% else %}
-        <p>Carrito vacío</p>
-        {% endif %}
+        <article class="card">
+            {% if messages %}
+                <div class="container-fluid">
+                    {% for message in messages %}
+                        <div class="mt-4 {% if 'error' in message.tags %}alert alert-danger{% else %}alert alert-success{% endif %}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            <h1>Carrito de Compras</h1>
+            {% if cosas %}
+                <p>Si el total supera los 20€ no se aplicarán los gastos de gestión</p>
+                <!-- Mostrar productos en el carrito -->
+                <table class="table table-striped">
+                    {% for alquiler in productos_en_carrito %}
+                        <tr>
+                            <td>{{ alquiler.alquiler.alquilo.titulo }}</td>
+                            <td>{{ alquiler.total }} € total</td>
+                            <td>{{ alquiler.alquiler.FechaInicio }}</td>
+                            <td>{{ alquiler.alquiler.FechaFinal }}</td>
+                            <td><a class="btn btn-danger" href="{% url 'eliminar_del_carrito' producto_id=alquiler.alquiler.id %}">Eliminar</a></td>
+                            <td>
+                                <form method="post" class="form-inline" action="{% url 'actualizar_dias_alquiler' alquiler.alquiler.id %}">
+                                    {% csrf_token %}
+                                    <input class="form-control mr-1" type="number" name="nuevos_dias" value="{{ alquiler.dias_alquiler }}">
+                                    <button class="btn btn-primary" type="submit">Actualizar días</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    <tr class="font-weight-bold">
+                        <td>Total</td>
+                        <td>{{ total_carrito }} €</td>
+                    </tr>
+                </table>
+                {% if gestion %}
+                    <p>Añadido 10€ de gastos de gestión al no superar los 20€ en total</p>
+                    <p>Precio original: {{ total_carrito }} €</p>
+                {% endif %}
+                <!-- Mostrar el total del carrito -->
+                <p>Total: {{ total_post_gestion }} €</p>
+                <form method="post" action="{% url 'pagos' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary">Pago Contrarrembolso</button>
+                </form>
+                <form method="post" action="{% url 'carrito' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary mt-2 mb-2">Pago con tarjeta</button>
+                </form>
+            {% else %}
+                <p>Carrito vacío</p>
+            {% endif %}
+        </article>
     </div>
+    
 
     
 </body>
