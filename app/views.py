@@ -3,8 +3,10 @@ from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Q
 import requests
+
+from users.models import Alquiler, User
 from .models import Casa, Categoria, Comentario, Reclamacion
-from .forms import CategoriasForm, ReclamacionForm
+from .forms import CategoriasForm, ReclamacionForm, SeguimientoForm
 from .forms import CasaForm, ImageUploadForm, ComentarioForm, AlquilerForm, OptionalImageUploadForm
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
@@ -299,3 +301,22 @@ def editar_casa(request, casa_id):
     return render(request, 'editar_casa.html', {'form': form, 'image_form': image_form, 'casa': casa})
 
 
+def seguimiento(request):
+    usuario: User = request.user
+    if usuario.is_authenticated:
+        pedidos = Alquiler.objects.filter(user=usuario)
+        return render(request, 'seguimiento.html', {'pedidos':pedidos})
+    return redirect('form_seguimiento')
+
+def form_seguimiento(request):
+    if request.method == 'POST':
+        form = SeguimientoForm(request.POST)
+        if form.is_valid:
+            print(form)
+            pk = form.cleaned_data['id_alquiler']
+            alquiler = Alquiler.objects.filter(id=pk)
+            return render(request, 'seguimiento.html', {'pedidos':alquiler})
+    else:
+        form = SeguimientoForm()
+        return render(request, 'form_seguimiento.html', {'form':form})
+    
