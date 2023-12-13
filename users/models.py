@@ -3,7 +3,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser, Group, Permission
 from django.forms import ValidationError
 from django.http import HttpResponse
-from datetime import datetime
+from datetime import date, datetime
 from django.apps import apps
 
 
@@ -27,11 +27,17 @@ class Alquiler(models.Model):
     
     def clean(self):
         super().clean()
-        fecha_actual = datetime.now()
-        if self.FechaInicio and self.FechaFinal:
-            if self.FechaInicio > self.FechaFinal:
+        fecha_actual = date.today()
+        if type(self.FechaFinal) != date:
+            fechaFinal = self.FechaFinal.date()
+            fechaInicia = self.FechaFinal.date()
+        else:
+            fechaFinal = self.FechaFinal
+            fechaInicia = self.FechaFinal
+        if fechaInicia and fechaFinal:
+            if fechaInicia > fechaFinal:
                 raise ValidationError("La fecha de inicio no puede ser mayor que la fecha de finalización.")
-            if self.FechaInicio < fecha_actual:
+            if fechaInicia < fecha_actual:
                 raise ValidationError("No puedes volver al pasado.")
 
     

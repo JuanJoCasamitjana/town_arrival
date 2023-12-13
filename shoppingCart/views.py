@@ -276,9 +276,15 @@ def actualizar_dias_alquiler(request, producto_id):
                 precio_alquiler_nuevo = alquiler.alquilo.precioPorDia * nuevos_dias
 
                 # Actualizar el precio del alquiler en el carrito
-                carrito_usuario = Carrito.objects.get(user=request.user)
-                carrito_usuario.total = F('total') - precio_alquiler_anterior + precio_alquiler_nuevo
-                carrito_usuario.save()
+                if request.user.is_authenticated:
+                    carrito_usuario = Carrito.objects.get(user=request.user)
+                    carrito_usuario.total = F('total') - precio_alquiler_anterior + precio_alquiler_nuevo
+                    carrito_usuario.save()
+                else:
+                    total_carrito = request.session.get('total_carrito')
+                    total_carrito = Decimal(total_carrito)
+                    total_carrito += precio_alquiler_nuevo - precio_alquiler_anterior
+                    request.session['total_carrito'] = (total_carrito).__str__()
 
                 return redirect('carrito')
         except ValueError:
@@ -377,28 +383,55 @@ def payment_successful(request):
         user_payment = Carrito.objects.get(user=request.user)
         cliente = Profile.objects.get(user=request.user)
         productos_en_carrito = user_payment.productos.all()
+        todos = productos_en_carrito
         total_vendido = user_payment.total
         user_payment.stripe_checkout_id = checkout_session_id
+        
+        # Si el total es menor que 20, se agregan 10 EUR más por gastos de gestión
         if total_vendido < 20:
-            total_vendido = total_vendido + 10
+            total_vendido += 10
+        
         id_alquilados = []
+        detalle_alquileres = []
+
+        # Construir los detalles de alquileres y sus IDs de pedido
         for alq in productos_en_carrito:
-            cliente.alquiladas.add(alq)
-            hogar = Casa.objects.get(titulo = alq.alquilo.titulo)
             id_alquilados.append(alq.id)
+            detalle_alquiler = f"{alq.alquilo.titulo} - ({alq.FechaFinal} - {alq.FechaInicio})"
+            detalle_alquileres.append(detalle_alquiler)
+            
+            # Realizar operaciones relacionadas con los alquileres
+            cliente.alquiladas.add(alq)
+            hogar = Casa.objects.get(titulo=alq.alquilo.titulo)
             hogar.ocupadas.add(alq)
             hogar.save()
+        
+        # Guardar cambios en el cliente y el carrito
         cliente.save()
-        todos = productos_en_carrito
+        user_payment.productos.clear()
+        user_payment.total = 0
+        user_payment.save()
+        
+        # Construir el cuerpo del mensaje con los detalles de alquileres y IDs de pedido
+        cuerpo_mensaje = "Se ha realizado su compra con éxito.\n"
+        cuerpo_mensaje += f"Método utilizado: Tarjeta.\n"
+        cuerpo_mensaje += f"Importe total: {total_vendido} EUR.\n"
+        cuerpo_mensaje += "Los productos solicitados son:\n"
+        
+        # Agregar los detalles de los alquileres y sus IDs de pedido al cuerpo del mensaje
+        for index, detalle in enumerate(detalle_alquileres):
+            cuerpo_mensaje += f"- {detalle} con id de pedido {id_alquilados[index]}\n"
+        
         asunto = 'Compra realizada en Town Arrival'
-        cuerpo_mensaje = f"Se ha realizado su compra con exito. Método utilizado: Tarjeta. Importe total: {total_vendido}EUR. Los productos solicitados son {productos_en_carrito}. La id de su pedido es {id_alquilados}."
+
+        # Enviar el correo electrónico de confirmación
         send_mail(
-                asunto,
-                cuerpo_mensaje,
-                settings.EMAIL_HOST_USER,
-                [cliente.user.email],  
-                fail_silently=False,
-            )
+            asunto,
+            cuerpo_mensaje,
+            settings.EMAIL_HOST_USER,
+            [cliente.user.email],
+            fail_silently=False,
+        )
         user_payment.productos.clear()
         user_payment.total = 0
         user_payment.save()
@@ -406,15 +439,19 @@ def payment_successful(request):
     else:
         stripe.api_key = settings.STRIPE_SECRET_KEY_TEST
         checkout_session_id = request.GET.get('session_id', None)
+        todos = []
         productos_en_carrito = request.session.get('alquileres')
         total_vendido = Decimal(request.session.get('total_carrito'))
         if total_vendido < 20:
             total_vendido = total_vendido + 10
         for alq in productos_en_carrito:
-            hogar = Casa.objects.get(titulo = alq.alquilo.titulo)
+            alqu = Alquiler.objects.get(id = alq)
+            todos.append(alqu)
+            hogar = Casa.objects.get(titulo = alqu.alquilo.titulo)
             hogar.ocupadas.add(alq)
             hogar.save()
-        todos = productos_en_carrito
+        request.session['alquileres'] = []
+        request.session['total_carrito'] = 0.0
     return render(request, 'pagos.html', {'todos': todos,
         'total_vendido': total_vendido})
     
